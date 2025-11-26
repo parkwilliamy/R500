@@ -13,7 +13,7 @@ module top_tb_xsim ();
 
     initial begin
 
-        $readmemh("C:/Users/parkw/RISClet/tb/prog/hex/add_2.hex", DUT.INST1.mem, 0);
+        $readmemh("C:/Users/parkw/RISClet/tb/prog/hex/load_stores.hex", DUT.INST1.mem, 0);
 
         rst_n = 0;
         #20;
