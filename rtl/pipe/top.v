@@ -28,16 +28,14 @@ module top (
     reg [31:0] IF_ID; 
     reg [162:0] ID_EX; 
     reg [109:0] EX_MEM; 
-    reg [139:0] MEM_WB;
+    reg [39:0] MEM_WB;
 
     // *********************************** MODULES **************************************
                
     // =============================== INSTRUCTION FETCH ================================
 
     reg [31:0] IF_pc;
-
-    assign addra = IF_pc;
-
+    
     // =============================== INSTRUCTION DECODE ===============================
 
     wire [31:0] ID_instruction;
@@ -48,6 +46,7 @@ module top (
     wire [19:15] ID_rs1;
     wire [24:20] ID_rs2;
     wire [31:25] ID_funct7;
+    wire Stall;
 
     assign ID_instruction = doa;
     assign ID_pc = IF_ID;
@@ -58,6 +57,8 @@ module top (
     assign ID_rs2 = ID_instruction[24:20];
     assign ID_funct7 = ID_instruction[31:25];
 
+    assign addra = Stall ? ID_pc : IF_pc;
+
     wire [2:0] ID_ValidReg;
     wire [1:0] ID_ALUOp; // EX
     wire [1:0] ID_RegSrc; // WB
@@ -67,9 +68,9 @@ module top (
     wire [31:0] ID_rs1_data;
     wire [31:0] ID_rs2_data;
 
-    wire WB_RegWrite;
-    wire [4:0] WB_rd;
-    reg [31:0] WB_rd_write_data;
+    wire MEM_RegWrite;
+    wire [4:0] MEM_rd;
+    reg [31:0] MEM_rd_write_data;
 
     ControlUnit INST2 (
         .opcode(ID_opcode), 
@@ -86,11 +87,11 @@ module top (
 
     RegFile INST3 (
         .clk(clk), 
-        .RegWrite(WB_RegWrite), 
+        .RegWrite(MEM_RegWrite), 
         .rs1(ID_rs1), 
         .rs2(ID_rs2), 
-        .rd(WB_rd), 
-        .rd_write_data(WB_rd_write_data), 
+        .rd(MEM_rd), 
+        .rd_write_data(MEM_rd_write_data), 
         .rs1_data(ID_rs1_data), 
         .rs2_data(ID_rs2_data)
     );
@@ -134,8 +135,6 @@ module top (
 
     wire [31:0] EX_rs1_data_final;
     wire [31:0] EX_rs2_data_final;
-
-    wire Stall;
 
     assign {
         EX_pc,
@@ -209,7 +208,6 @@ module top (
     
     wire [31:0] MEM_pc_eximm;
     wire [31:0] MEM_ALU_result;
-    wire [4:0] MEM_rd;
 
     reg [31:0] MEM_DMEM_result; // properly formatted data for load instructions
 
@@ -235,17 +233,12 @@ module top (
     // =============================== REGFILE WRITE BACK ===============================
 
     wire [2:0] WB_ValidReg;
-    wire [1:0] WB_RegSrc;
-    wire [31:0] WB_ALU_result, WB_DMEM_result, WB_pc, WB_pc_eximm;
+    wire [31:0] WB_rd_write_data;
+    wire [4:0] WB_rd;
     
     assign {
         WB_ValidReg,
-        WB_RegSrc,
-        WB_RegWrite,
-        WB_ALU_result,
-        WB_DMEM_result,
-        WB_pc,
-        WB_pc_eximm,
+        WB_rd_write_data,
         WB_rd
     } = MEM_WB;
 
@@ -308,7 +301,7 @@ module top (
                 IF_ID <= IF_ID;
                 ID_EX <= {EX_pc, 3'b000, 4'b0000, 3'b000, 2'b00, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, EX_rs1_data, EX_rs2_data, EX_eximm, EX_rd, EX_rs1, EX_rs2};
                 EX_MEM <= {EX_pc, EX_pc_eximm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_ALU_result, EX_rd};
-                MEM_WB <= {MEM_ValidReg, MEM_RegSrc, MEM_RegWrite, MEM_ALU_result, MEM_DMEM_result, MEM_pc, MEM_pc_eximm, MEM_rd};
+                MEM_WB <= {MEM_ValidReg, MEM_rd_write_data, MEM_rd};
 
             end else begin
             
@@ -316,7 +309,7 @@ module top (
             IF_ID <= IF_pc;
             ID_EX <= {ID_pc, ID_funct3, ID_field, ID_ValidReg, ID_ALUOp, ID_RegSrc, ID_ALUSrc, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch, ID_Jump, ID_rs1_data, ID_rs2_data, ID_eximm, ID_rd, ID_rs1, ID_rs2};
             EX_MEM <= {EX_pc, EX_pc_eximm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_ALU_result, EX_rd};
-            MEM_WB <= {MEM_ValidReg, MEM_RegSrc, MEM_RegWrite, MEM_ALU_result, MEM_DMEM_result, MEM_pc, MEM_pc_eximm, MEM_rd};
+            MEM_WB <= {MEM_ValidReg, MEM_rd_write_data, MEM_rd};
 
             end
 
@@ -344,12 +337,12 @@ module top (
 
     always @ (*) begin
 
-        case (WB_RegSrc) 
+        case (MEM_RegSrc) 
 
-            0: WB_rd_write_data = WB_ALU_result;
-            1: WB_rd_write_data = WB_DMEM_result;
-            2: WB_rd_write_data = WB_pc_eximm;
-            3: WB_rd_write_data = WB_pc+4;
+            0: MEM_rd_write_data = MEM_ALU_result;
+            1: MEM_rd_write_data = MEM_DMEM_result;
+            2: MEM_rd_write_data = MEM_pc_eximm;
+            3: MEM_rd_write_data = MEM_pc+4;
 
         endcase
 

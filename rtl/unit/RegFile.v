@@ -23,7 +23,7 @@ module RegFile (
 
     end
 
-    always @(negedge clk) begin
+    always @(posedge clk) begin
 
         if (rd > 0 && RegWrite) reg_file[rd] <= rd_write_data; // ensure address written to is from 1-31 and RegWrite is HIGH
         
