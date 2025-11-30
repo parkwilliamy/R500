@@ -27,7 +27,7 @@ module top (
 
     reg [31:0] IF_ID; 
     reg [162:0] ID_EX; 
-    reg [145:0] EX_MEM; 
+    reg [150:0] EX_MEM; 
     reg [109:0] MEM_WB;
 
     // *********************************** MODULES **************************************
@@ -194,6 +194,7 @@ module top (
         MEM_MemWrite,
         MEM_ALU_result,
         MEM_rs2_data,
+        MEM_rs2,
         MEM_rd
     } = EX_MEM;
 
@@ -211,7 +212,7 @@ module top (
 
     // =============================== REGFILE WRITE BACK ===============================
 
-    wire [31:0] WB_pc_imm, WB_pc, WB_ALU_result, WB_DMEM_result;
+    wire [31:0] WB_pc_imm, WB_pc, WB_ALU_result;
     wire [2:0] WB_funct3, WB_ValidReg;
     wire [1:0] WB_RegSrc; 
     wire WB_MemRead;
@@ -314,7 +315,7 @@ module top (
                 IF_pc <= IF_pc;
                 IF_ID <= IF_ID;
                 ID_EX <= {EX_pc, 3'b000, 4'b0000, 3'b000, 2'b00, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, EX_rs1_data, EX_rs2_data, EX_imm, EX_rd, EX_rs1, EX_rs2};
-                EX_MEM <= {EX_pc, EX_pc_imm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_MemRead, EX_MemWrite, EX_ALU_result, EX_rs2_data, EX_rd};
+                EX_MEM <= {EX_pc, EX_pc_imm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_MemRead, EX_MemWrite, EX_ALU_result, EX_rs2_data, EX_rs2, EX_rd};
             MEM_WB <= {MEM_pc, MEM_pc_imm, MEM_funct3, MEM_ValidReg, MEM_RegSrc, MEM_MemRead, MEM_RegWrite, MEM_ALU_result, MEM_rd};
 
             end else begin
@@ -322,7 +323,7 @@ module top (
             IF_pc <= next_pc; 
             IF_ID <= IF_pc;
             ID_EX <= {ID_pc, ID_funct3, ID_field, ID_ValidReg, ID_ALUOp, ID_RegSrc, ID_ALUSrc, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch, ID_Jump, ID_rs1_data, ID_rs2_data, ID_imm, ID_rd, ID_rs1, ID_rs2};
-            EX_MEM <= {EX_pc, EX_pc_imm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_MemRead, EX_MemWrite, EX_ALU_result, EX_rs2_data, EX_rd};
+            EX_MEM <= {EX_pc, EX_pc_imm, EX_funct3, EX_ValidReg, EX_RegSrc, EX_RegWrite, EX_MemRead, EX_MemWrite, EX_ALU_result, EX_rs2_data, EX_rs2, EX_rd};
             MEM_WB <= {MEM_pc, MEM_pc_imm, MEM_funct3, MEM_ValidReg, MEM_RegSrc, MEM_MemRead, MEM_RegWrite, MEM_ALU_result, MEM_rd};
 
             end

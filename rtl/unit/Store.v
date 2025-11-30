@@ -13,6 +13,7 @@ module Store (
 
     always @ (*) begin
 
+        web = 0;
         dib = 0;
 
         if (MemWrite) begin
