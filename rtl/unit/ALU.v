@@ -4,7 +4,8 @@ module ALU (
     input [31:0] op1, op2,
     input [3:0] field, // funct7[5]/0 + funct3 (only funct7[5] for certain instructions)
     output reg [31:0] ALU_result,
-    output reg zero, sign, overflow, carry
+    output zero, sign, overflow,
+    output reg carry
 );
 
     localparam [3:0] // different fields for ALU operations
@@ -19,11 +20,11 @@ module ALU (
         SLT = 4'b0010,
         SLTU = 4'b0011;
 
-    always @(*) begin
+    assign zero = (ALU_result == 0);
+    assign sign = ($signed(ALU_result) < 0);
+    assign overflow = (op1[31] != op2[31]) && (ALU_result[31] != op1[31]); // detects overflow for subtraction used in branch decisions
 
-        zero = (ALU_result == 0);
-        sign = ($signed(ALU_result) < 0);
-        overflow = (op1[31] != op2[31]) && (ALU_result[31] != op1[31]); // detects overflow for subtraction used in branch decisions
+    always @(*) begin
 
         case (field) 
 

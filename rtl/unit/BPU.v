@@ -8,6 +8,8 @@ module BPU (
 
     always @(*) begin
 
+        branch_taken = 0;
+
         if (Branch) begin
                 
                 case (funct3) 
