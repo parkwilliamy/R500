@@ -8,6 +8,9 @@ module Fetch(
 );
 
     always @ (*) begin
+
+        ID_Flush = 0;
+        EX_Flush = 0;
         
         // Branch Instruction Logic
         if (Branch && branch_taken) begin
