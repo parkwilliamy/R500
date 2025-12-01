@@ -13,7 +13,7 @@ module top_tb_xsim ();
 
     initial begin
 
-        $readmemh("C:/Users/parkw/DeltaRV/tb/prog/hex/blt.hex", DUT.INST1.mem, 0);
+        $readmemh("C:/Users/parkw/DeltaRV/tb/prog/hex/JALR.hex", DUT.INST1.mem, 0);
 
         rst_n = 0;
         #20;

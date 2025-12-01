@@ -47,8 +47,9 @@ module top (
     wire [24:20] ID_rs2;
     wire [31:25] ID_funct7;
     wire ID_Stall, ID_Flush;
+    reg ID_PostFlush;
 
-    assign ID_instruction = doa;
+    assign ID_instruction = ID_PostFlush ? 0 : doa;
     assign ID_pc = IF_ID;
     assign ID_opcode = ID_instruction[6:0];
     assign ID_rd = ID_instruction[11:7];
@@ -314,6 +315,7 @@ module top (
         if (!rst_n) begin
             IF_pc <= 0;
             IF_ID <= 0;
+            ID_PostFlush <= 0;
             ID_EX <= 0;
             EX_MEM <= 0;
             MEM_WB <= 0;
@@ -321,11 +323,18 @@ module top (
 
         else begin
 
+            ID_PostFlush <= 0;
+
             if (ID_Flush || EX_Flush) begin
 
                 IF_pc <= next_pc;
 
-                if (ID_Flush) IF_ID <= 32'b0;
+                if (ID_Flush) begin
+
+                    IF_ID <= 32'b0;
+                    ID_PostFlush <= 1;
+
+                end
                 else IF_ID <= IF_pc;
                 if (EX_Flush) ID_EX <= 163'b0;
                 else ID_EX <= {ID_pc, ID_pc_imm, ID_funct3, ID_field, ID_ValidReg, ID_ALUOp, ID_RegSrc, ID_ALUSrc, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch, ID_Jump, ID_rs1_data, ID_rs2_data, ID_imm, ID_rd, ID_rs1, ID_rs2};
