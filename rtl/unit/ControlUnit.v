@@ -64,6 +64,7 @@ module ControlUnit (
 
             OP_I_JALR: begin
 
+                ALUOp = 1;
                 RegSrc = 3;
                 ALUSrc = 1;
                 Jump = 1;
