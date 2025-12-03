@@ -5,7 +5,8 @@ module top (
     output reg [27:0] clk_cycles, // assuming peak clock speed around 75MHz and longest program length around 3s
     output reg [12:0] retired_instructions, // assuming max instructions in a program around 8000
     output reg [12:0] predictions_made, // total number of branch instructions
-    output reg [12:0] correct_predictions // total number of correct predictions
+    output reg [12:0] correct_predictions, // total number of correct predictions
+    output reg [12:0] invalid_clk_cycles // clock cycles elapsed where an invalid instruction is in the pipeline
 );
 
 
@@ -74,7 +75,7 @@ module top (
 
     wire [2:0] ID_ValidReg;
     wire [1:0] ID_ALUOp, ID_RegSrc; 
-    wire ID_ALUSrc, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch, ID_Jump; // EX, WB, MEM, MEM, WB, MEM, MEM
+    wire ID_ALUSrc, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch, ID_Jump, ID_Valid; // EX, WB, MEM, MEM, WB, MEM, MEM
     wire [3:0] ID_field;
     wire [31:0] ID_imm, ID_pc_imm, ID_rs1_data, ID_rs2_data;
 
@@ -92,7 +93,8 @@ module top (
         .MemRead(ID_MemRead), 
         .MemWrite(ID_MemWrite), 
         .Branch(ID_Branch),
-        .Jump(ID_Jump)
+        .Jump(ID_Jump),
+        .Valid(ID_Valid)
     );
 
     RegFile INST3 (
@@ -122,9 +124,10 @@ module top (
     assign ID_pc_imm = ID_pc + ID_imm;
 
     reg [1:0] BHT [255:0];
+    reg [7:0] gh;
 
     wire [7:0] ID_BHTaddr;
-    assign ID_BHTaddr = ID_pc[9:2];
+    assign ID_BHTaddr = ID_pc[9:2] ^ gh;
 
     wire [1:0] ID_branch_prediction;
     assign ID_branch_prediction = BHT[ID_BHTaddr];
@@ -186,6 +189,7 @@ module top (
         .carry(EX_carry)
     );
 
+    wire EX_branch_taken;
     wire [1:0] EX_prediction_status;
 
     BRU INST7 (
@@ -196,6 +200,7 @@ module top (
         .overflow(EX_overflow), 
         .carry(EX_carry),
         .funct3(EX_funct3),
+        .branch_taken(EX_branch_taken),
         .prediction_status(EX_prediction_status)
     );
 
@@ -349,6 +354,7 @@ module top (
             IF_pc <= 0;
             IF_ID <= 0;
             ID_PostFlush <= 0;
+            gh <= 0;
             ID_EX <= 0;
             EX_MEM <= 0;
             MEM_WB <= 0;
@@ -366,7 +372,9 @@ module top (
             ID_PostFlush <= 0;
             clk_cycles <= clk_cycles+1;
 
-            if (ID_Branch) predictions_made <= predictions_made+1;
+            if (EX_Branch) predictions_made <= predictions_made+1;
+
+            if (!ID_Valid) invalid_clk_cycles <= invalid_clk_cycles+1;
 
             if (WB_ValidReg != 3'b000) retired_instructions <= retired_instructions+1;
 
@@ -410,10 +418,20 @@ module top (
 
             if (EX_Branch) begin
 
+                gh <= {gh[6:0], EX_branch_taken};
+
                 case (EX_prediction_status)
 
-                    0: BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]+1;
-                    1: BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]-1;
+                    0: begin
+                        
+                        BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]+1;
+
+                    end
+                    1: begin
+                        
+                        BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]-1;
+
+                    end
                     2: begin
                         
                         if (BHT[EX_BHTaddr] > 0)  BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]-1;

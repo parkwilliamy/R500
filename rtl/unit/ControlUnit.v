@@ -4,7 +4,7 @@ module ControlUnit (
     input [6:0] opcode,
     output reg [2:0] ValidReg,
     output reg [1:0] ALUOp, RegSrc,
-    output reg ALUSrc, RegWrite, MemRead, MemWrite, Branch, Jump
+    output reg ALUSrc, RegWrite, MemRead, MemWrite, Branch, Jump, Valid
     // ValidReg: {rs2, rs1, rd} are valid registers
     // ALUOp: 0 -> decode regbit, funct3 and funct7 in ALUControl, 1 -> ADD, 2 -> SUB
     // RegSrc: 0 -> ALU result, 1 -> data memory, 2 -> pc-imm adder, 3 -> next instruction address (pc+4)
@@ -14,6 +14,7 @@ module ControlUnit (
     // MemWrite: 0 -> no write to data memory, 1 -> write to data memory 
     // Branch: 0 -> instruction is not B-type, 1 -> instruction is B-type
     // Jump: 0 -> instruction is not J-type, 1 -> instruction is J-type
+    // Valid: 0 -> instruction is not in the ISA, 1 -> instruction is in ISA
 );
 
     localparam [6:0] // opcodes for different instruction types
@@ -38,6 +39,7 @@ module ControlUnit (
         MemWrite = 0;
         Branch = 0;
         Jump = 0;
+        Valid = 1;
 
         case (opcode)
 
@@ -125,6 +127,7 @@ module ControlUnit (
 
                 RegWrite = 0;
                 ValidReg = 0;
+                Valid = 0;
 
             end
             

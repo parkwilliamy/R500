@@ -3,7 +3,17 @@
 module top_tb (input rst_n, clk);
 
     //reg rst_n, clk; 
-    top DUT (.rst_n(rst_n), .clk(clk));
+    reg [27:0] clk_cycles;
+    reg [12:0] retired_instructions, predictions_made, correct_predictions, invalid_clk_cycles; 
+    top DUT (
+        .rst_n(rst_n),
+        .clk(clk),
+        .clk_cycles(clk_cycles),
+        .retired_instructions(retired_instructions),
+        .predictions_made(predictions_made),
+        .correct_predictions(correct_predictions),
+        .invalid_clk_cycles(invalid_clk_cycles)
+    );
 
     reg [1000*8:1] program_file;  
     reg [31:0] RVMODEL_DATA_BEGIN, RVMODEL_DATA_END, tohost;
