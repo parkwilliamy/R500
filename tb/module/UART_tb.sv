@@ -27,7 +27,7 @@ module UART_tb;
 
     UARTInputs UARTTest = new;
 
-    always #5 clk = ~clk;
+    always #17.5 clk = ~clk;
 
     /* Test Plan
 
@@ -52,13 +52,15 @@ module UART_tb;
         TX_data = 0;
 
         rst_n = 0;
-        #5;
+        #35;
         rst_n = 1;
 
         $display("================================= RX Tests ===================================\n");
 
         $display("Edge Cases\n");
         $display("Data: 0x00\n");
+
+        #42.5;
 
         send_uart(8'h00);
         assert(RX_data == 8'h00);
@@ -81,6 +83,8 @@ module UART_tb;
 
         $display("================================= TX Tests ===================================\n");
 
+        TX_enable = 1;
+
         $display("Edge Cases\n");
         $display("Data: 0x00\n");
 
@@ -96,13 +100,13 @@ module UART_tb;
 
         repeat (5) begin
 
-            UARTInputs.randomize();
-            TX_data = UARTInputs.uart_data;
+            UARTTest.randomize();
+            TX_data = UARTTest.uart_data;
             receive_uart(TX_data);
 
         end
 
-        $display("Tests Done!")
+        $display("Tests Done!");
 
         $finish;
 
@@ -110,46 +114,44 @@ module UART_tb;
 
     end
 
+    task automatic send_uart(input [7:0] data);
+
+        RX = 0; // start bit
+        #1000; // 1 baud time assuming 1Mb/s
+        
+        for (i=0; i < 8; i = i+1) begin
+
+            RX = data[i];
+            #1000;
+
+        end
+
+        RX = 1; // stop bit
+        #1000;
+
+    endtask
+
+    task automatic receive_uart(input [7:0] data);
+
+        @(negedge TX);
+
+        #500; // wait half baud time for start bit sample
+
+        assert(TX == 0);
+
+        for (i=0; i<8; i = i+1) begin
+
+            #1000;
+            assert(TX == data[i]);
+
+        end
+
+        #1000;
+        assert(TX == 1);
+
+    endtask
+
 
 endmodule
 
 
-task send_uart(input [7:0] data);
-
-    RX = 0; // start bit
-    #1000; // 1 baud time assuming 1Mb/s
-    
-    for (i=0; i < 8; i = i+1) begin
-
-        RX = data[i];
-        #1000;
-
-    end
-
-    RX = 1; // stop bit
-    #1000;
-
-endtask
-
-task receive_uart(input [7:0] data);
-
-    TX_enable = 1;
-
-    #500; // wait half baud time for start bit sample
-
-    assert(TX == 0);
-
-    for (i=0; i<8; i = i+1) begin
-
-        #1000;
-        assert(TX == data[i]);
-
-    end
-
-    #1000;
-    assert(TX == 1);
-
-    TX_enable = 0;
-
-
-endtask

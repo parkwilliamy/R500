@@ -73,6 +73,7 @@ module MemAccess (
                         addra <= write_frame[ADDR_WIDTH-1:0];
                         wea <= write_frame[19:16];
                         dia <= write_frame[55:24];
+                        TX_enable <= 1;
 
                     end
 

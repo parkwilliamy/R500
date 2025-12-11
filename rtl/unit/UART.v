@@ -4,7 +4,7 @@ module UART (
     input clk, rst_n, RX, TX_enable,
     input [7:0] TX_data,
     output reg TX, byte_done,
-    output reg [7:0] RX_data,
+    output reg [7:0] RX_data
 );
 
     // This module assumes a baud rate of 1Mb/s
@@ -38,6 +38,7 @@ module UART (
             data_buffer <= 0;
             RX_buffer <= 0;
             RX_data <= 0;
+            TX <= 1;
 
         end
 
@@ -52,10 +53,12 @@ module UART (
                 IDLE: begin
 
                     if (RX_negedge) baud_count <= 13; // START_RX baud counter from halfway for half baud tick
-                    else if (TX_enable) begin
+                    else if (TX_enable && baud_tick) begin
 
-                        baud <= 0;
+                        baud_count <= 0;
+                        baud_tick <= 0;
                         TX <= 0; // set start bit
+                        data_idx <= 0;
 
                     end
 
@@ -77,7 +80,7 @@ module UART (
                     if (baud_tick) begin
 
                         data_idx <= data_idx+1;
-                        data_buffer <= {RX, data_buffer[6:0]};
+                        data_buffer <= {RX, data_buffer[7:1]};
 
                     end
 
@@ -93,7 +96,12 @@ module UART (
 
                 START_TX: begin
 
-                    data_idx <= 0;
+                    if (baud_tick) begin
+                        
+                        TX <= TX_data[data_idx];
+                        data_idx <= data_idx+1;
+                        
+                    end
 
                 end
 
@@ -101,9 +109,8 @@ module UART (
 
                     if (baud_tick) begin
                         
-                        TX <= TX_data[data_idx];
                         if (data_idx != 7) data_idx <= data_idx+1;
-                        else TX <= 1; // set stop bit
+                        TX <= TX_data[data_idx];
 
                     end
                     
@@ -111,7 +118,12 @@ module UART (
 
                 STOP_TX: begin
 
-                    if (baud_tick) byte_done <= 1;
+                    if (baud_tick) begin
+                        
+                        byte_done <= 1;
+                        TX <= 1; // stop bit
+
+                    end
 
                 end
 
@@ -140,7 +152,7 @@ module UART (
             IDLE: begin
 
                 if (RX_negedge) next_state = START_RX;
-                else if (TX_enable) next_state = START_TX;
+                else if (TX_enable && baud_tick) next_state = START_TX;
                 else next_state = IDLE;
 
             end
@@ -167,7 +179,12 @@ module UART (
 
             DATA_RX: begin
 
-                if (data_idx == 7) next_state = STOP_RX;
+                if (baud_tick) begin
+                    
+                    if (data_idx == 7) next_state = STOP_RX;
+                    else next_state = DATA_RX;
+
+                end
                 else next_state = DATA_RX;
 
             end
