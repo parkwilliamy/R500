@@ -88,7 +88,12 @@ module UART (
 
                 STOP_RX: begin
 
-                    if (baud_tick) RX_data <= data_buffer;
+                    if (baud_tick) begin
+                        
+                        RX_data <= data_buffer;
+                        byte_done <= 1;
+
+                    end
 
                 end
 

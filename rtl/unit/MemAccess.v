@@ -5,13 +5,13 @@ module MemAccess (
     input [7:0] RX_data,
     input [31:0] dob,
     output reg TX_enable,
-    output reg [15:0] addra, addrb
+    output reg [15:0] addra, addrb,
     output reg [3:0] wea,
     output reg [31:0] dia,
     output reg [7:0] TX_data
 );
 
-    localparam ADDR_WIDTH = 13;
+    localparam ADDR_WIDTH = 16;
     localparam IDLE = 3'b000, WRITE = 3'b001, READ_1 = 3'b010, READ_2 = 3'b011, READ_3 = 3'b100;
     reg [2:0] current_state, next_state;
 
@@ -20,32 +20,21 @@ module MemAccess (
     reg [2:0] msgidx;
     reg [15:0] ADDR_LOW, ADDR_HIGH, word_idx;
 
-    integer i;
-
     always @ (posedge clk) begin
 
         if (!rst_n) begin
 
             current_state <= IDLE;
-
-            for (i=0; i < 8; i = i+1) begin
-
-                write_frame[i] <= 0;
-
-            end
-
-            for (i=0; i < 4; i = i+1) begin
-
-                read_frame[i] <= 0;
-
-            end
-
+            write_frame <= 0;
+            read_frame <= 0;
             msgidx <= 0;
             word_idx <= 0;
             TX_enable <= 0;
             TX_data <= 0;
             addra <= 0;
             addrb <= 0;
+            wea <= 0;
+            dia <= 0;
 
         end
 
@@ -63,39 +52,56 @@ module MemAccess (
                     TX_data <= 0;
                     addra <= 0;
                     addrb <= 0;
+                    wea <= 0;
+                    dia <= 0;
                     
                 end
 
                 WRITE: begin
 
-                    if (msgidx == 6) begin
+                    if (byte_done) begin
 
-                        addra <= write_frame[ADDR_WIDTH-1:0];
-                        wea <= write_frame[19:16];
-                        dia <= write_frame[55:24];
-                        TX_enable <= 1;
+                        if (msgidx == 7) begin
+
+                            addra <= write_frame[ADDR_WIDTH-1:0];
+                            wea <= write_frame[19:16];
+                            dia <= write_frame[55:24];
+
+                        end
+
+                        else begin
+                            
+                            msgidx <= msgidx+1;
+                            write_frame <= {RX_data, write_frame[55:8]};
+
+                        end
 
                     end
-
-                    else msgidx <= msgidx+1;
-
-                    write_frame <= {RX_data, write_frame[55:8]};
 
                 end
 
                 READ_1: begin
 
-                    if (msgidx == 3) begin
+                    TX_enable <= 1;
 
-                        ADDR_LOW <= read_frame[ADDR_WIDTH-1:0];
-                        ADDR_HIGH <= read_frame[ADDR_WIDTH-1+16:16];
-                        addrb <= read_frame[ADDR_WIDTH-1:0];
+                    if (byte_done) begin
+
+                        if (msgidx == 4) begin
+
+                            ADDR_LOW <= read_frame[ADDR_WIDTH-1+16:16];
+                            ADDR_HIGH <= read_frame[ADDR_WIDTH-1:0];
+                            addrb <= read_frame[ADDR_WIDTH-1+16:16];
+
+                        end
+
+                        else begin
+                            
+                            msgidx <= msgidx+1;
+                            read_frame <= {RX_data, read_frame[31:8]};
+
+                        end
 
                     end
-
-                    else msgidx <= msgidx+1;
-
-                    read_frame[msgidx] <= {RX_data, read_frame[31:8]};
 
                 end
 
@@ -134,14 +140,14 @@ module MemAccess (
 
             WRITE: begin
 
-                if (msgidx == 6) next_state = IDLE;
+                if (msgidx == 7 && byte_done) next_state = IDLE;
                 else next_state = WRITE;
 
             end
 
             READ_1: begin
 
-                if (msgidx == 3) next_state = READ_2;
+                if (msgidx == 4 && byte_done) next_state = READ_2;
                 else next_state = READ_1;
 
             end
@@ -152,7 +158,7 @@ module MemAccess (
 
                 if (byte_done) begin
 
-                    if (addrb == ADDR_HIGH-4) next_state = IDLE; // if last word was transmitted
+                    if (addrb == ADDR_HIGH) next_state = IDLE; // if last word was transmitted
                     else next_state = READ_2; // if data still being transmitted from BRAM
 
                 end

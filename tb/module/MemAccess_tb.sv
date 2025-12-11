@@ -30,6 +30,7 @@ module MemAccess_tb;
     bit [3:0] wea;
     bit [31:0] dia;
     logic [7:0] TX_data;
+    logic [15:0] ADDR_LOW, ADDR_HIGH;
 
     MemAccess DUT (
         .clk(clk), 
@@ -61,8 +62,7 @@ module MemAccess_tb;
         .dob(dob)
     );
 
-    bit clk;
-    logic TX;
+    logic TX, RX;
 
     UART INST2 (
         .clk(clk), 
@@ -77,7 +77,7 @@ module MemAccess_tb;
 
     MemAccessInputs MemAccessTest = new;
 
-    always #5 clk = ~clk;
+    always #17.5 clk = ~clk;
 
     /* Test Plan
 
@@ -92,88 +92,86 @@ module MemAccess_tb;
 
     integer i; 
 
-    initial begin // TOD0: INITIALIZE BRAM WITH DISTINCT VALUES FOR READ TESTS
+    initial begin 
 
         clk = 0;
-        byte_done = 0;
-        RX_data = 0;
-        TX_enable = 0;
+        RX = 1;
 
         rst_n = 0;
-        #5;
+        #37;
         rst_n = 1;
+
+        #42.5
 
         $display("================================= WRITE Tests ===================================\n");
 
         repeat (10) begin
 
             MemAccessTest.randomize();
-            addra = MemAccessTest.addra;
-            wea = MemAccessTest.wea;
-            dia = MemAccessTest.dia;
-            send_write_frame(addra, wea, dia);
-            $display("addra: %0h, wea: %0h, dia: %0h", addra, wea, dia)
+            send_write_frame(MemAccessTest.addra, MemAccessTest.wea, MemAccessTest.dia);
+            $display("addra: %04h, wea: %04b, dia: %04h", MemAccessTest.addra, MemAccessTest.wea, MemAccessTest.dia);
 
         end
 
         $display("================================= READ Tests ===================================\n");
 
-        MemAccessTest.randomize();
-        ADDR_LOW = MemAccessTest.ADDR_LOW;
-        ADDR_HIGH = MemAccessTest.ADDR_HIGH;
-        send_write_frame(ADDR_LOW, ADDR_HIGH);
+        
+        ADDR_LOW = 16'h5000;
+        ADDR_HIGH = 16'h500C;
+        $display("ADDR_LOW: %04h, ADDR_HIGH: %04h", ADDR_LOW, ADDR_HIGH);
+        send_read_frame(ADDR_LOW, ADDR_HIGH);
 
-        #1000;
+        #200000;
 
-        $display("Tests Done!")
+        $display("Tests Done!");
 
         $finish;
 
     end
 
+    task automatic send_uart(input [7:0] data);
+
+        RX = 0; // start bit
+        #1000; // 1 baud time assuming 1Mb/s
+        
+        for (i=0; i < 8; i = i+1) begin
+
+            RX = data[i];
+            #1000;
+
+        end
+
+        RX = 1; // stop bit
+        #1000;
+
+    endtask
+
+    task send_write_frame(input [15:0] addra, input [3:0] wea, input [31:0] data);
+
+        send_uart(8'h0F); // start byte for WRITE mode
+        send_uart(addra[7:0]);
+        send_uart({addra[15:8]});
+        send_uart({4'b0, wea});
+        send_uart(data[7:0]);
+        send_uart(data[15:8]);
+        send_uart(data[23:16]);
+        send_uart(data[31:24]);
+
+    endtask
+
+    task send_read_frame(input [15:0] ADDR_LOW, input [15:0] ADDR_HIGH);
+
+        send_uart(8'hFF); // start byte for WRITE mode
+        send_uart(ADDR_HIGH[7:0]);
+        send_uart(ADDR_HIGH[15:8]);
+        send_uart(ADDR_LOW[7:0]);
+        send_uart(ADDR_LOW[15:8]);
+        
+
+    endtask
+
 
 endmodule
 
-task send_uart(input [7:0] data);
 
-    RX = 0; // start bit
-    #1000; // 1 baud time assuming 1Mb/s
-    
-    for (i=0; i < 8; i = i+1) begin
 
-        RX = data[i];
-        #1000;
-
-    end
-
-    RX = 1; // stop bit
-    #1000;
-
-endtask
-
-task send_write_frame(input [15:0] addra, input [3:0] wea, input [31:0] data);
-
-    send_uart(8'h0F); // start byte for WRITE mode
-    send_uart(addra[7:0]);
-    send_uart({3'b0, addra[12:8]});
-    send_uart({4'b0, wea});
-    send_uart(data[7:0]);
-    send_uart(data[15:8]);
-    send_uart(data[23:16]);
-    send_uart(data[31:24]);
-
-endtask
-
-task send_read_frame(input [15:0] ADDR_LOW, input [15:0] ADDR_HIGH);
-
-    send_uart(8'hFF); // start byte for WRITE mode
-    send_uart(ADDR_LOW[7:0]);
-    send_uart(ADDR_LOW[15:8]);
-    send_uart(ADDR_LOW[23:16]);
-    send_uart(ADDR_LOW[31:24]);
-    send_uart(ADDR_HIGH[7:0]);
-    send_uart(ADDR_HIGH[15:8]);
-    send_uart(ADDR_HIGH[23:16]);
-    send_uart(ADDR_HIGH[31:24]);
-
-endtask
