@@ -3,7 +3,7 @@
     .section .text
 _start:
     
-    auipc x5, 0x5              # x5 = base address of .data section (0x5000)
+    la x5, my_data             # x5 = base address of .data section (0x5000)
     li    x1, 0xfee1dead       # x1 = 0xfee1dead
     li    x6, 0xdeadbeef       # x6 = 0xdeadbeef
     li    x7, 0xbaadf00d       # x7 = 0xbaadf00d
