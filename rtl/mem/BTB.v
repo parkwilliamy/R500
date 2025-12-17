@@ -120,7 +120,7 @@ module BTB (
 
     // BTB writes
 
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
 
         if (!rst_n) begin
 

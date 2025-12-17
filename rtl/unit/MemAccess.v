@@ -18,7 +18,8 @@ module MemAccess (
     reg [55:0] write_frame;
     reg [31:0] read_frame;
     reg [2:0] msgidx;
-    reg [15:0] ADDR_LOW, ADDR_HIGH, word_idx;
+    reg [15:0] ADDR_HIGH;
+    reg [1:0] word_idx;
 
     always @ (posedge clk) begin
 
@@ -35,6 +36,7 @@ module MemAccess (
             addrb <= 0;
             wea <= 0;
             dia <= 0;
+            ADDR_HIGH <= 16'h8000;
 
         end
 
@@ -48,6 +50,8 @@ module MemAccess (
                     
                     msgidx <= 0;
                     word_idx <= 0;
+                    write_frame <= 0;
+                    read_frame <= 0;
                     TX_enable <= 0;
                     TX_data <= 0;
                     addra <= 0;
@@ -86,7 +90,6 @@ module MemAccess (
 
                         if (msgidx == 4) begin
 
-                            ADDR_LOW <= read_frame[ADDR_WIDTH-1+16:16];
                             ADDR_HIGH <= read_frame[ADDR_WIDTH-1:0];
                             addrb <= read_frame[ADDR_WIDTH-1+16:16];
                             TX_data <= dob[7:0];
@@ -127,9 +130,11 @@ module MemAccess (
     // STATE TRANSITION LOGIC
 
     always @ (*) begin
+    
+        next_state = IDLE;
 
         case(current_state) 
-
+        
             IDLE: begin
 
                 if (RX_data == 8'h0F) next_state = WRITE;

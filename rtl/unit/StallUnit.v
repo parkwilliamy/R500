@@ -11,7 +11,7 @@ module StallUnit (
 
         if (EX_MemRead && !ID_MemWrite) begin
 
-            Stall = (((EX_rd == ID_rs1) && ID_ValidReg[1])) || ((EX_rd == ID_rs2) && ID_ValidReg[2]);
+            Stall = (EX_rd != 0) && (((EX_rd == ID_rs1) && ID_ValidReg[1])) || ((EX_rd == ID_rs2) && ID_ValidReg[2]);
 
         end
 

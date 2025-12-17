@@ -8,7 +8,7 @@ module UART (
 );
 
     // This module assumes a baud rate of 1Mb/s
-    localparam MAX_COUNT = 28,
+    localparam MAX_COUNT = 56,
                IDLE = 3'b000, 
                START_RX = 3'b001, 
                START_TX = 3'b010, 
@@ -18,7 +18,7 @@ module UART (
                STOP_TX = 3'b110;
 
     reg [2:0] current_state, next_state;
-    reg [4:0] baud_count;
+    reg [5:0] baud_count;
     reg [2:0] data_idx;
     reg baud_tick;
     reg [7:0] data_buffer;
@@ -39,6 +39,7 @@ module UART (
             RX_buffer <= 0;
             RX_data <= 0;
             TX <= 1;
+            byte_done <= 0;
 
         end
 
@@ -52,7 +53,7 @@ module UART (
 
                 IDLE: begin
 
-                    if (RX_negedge) baud_count <= 13; // START_RX baud counter from halfway for half baud tick
+                    if (RX_negedge) baud_count <= 28; // START_RX baud counter from halfway for half baud tick
                     else if (TX_enable && baud_tick) begin
 
                         baud_count <= 0;
@@ -64,6 +65,7 @@ module UART (
 
                     byte_done <= 0;
                     data_buffer <= 0;
+                    
 
                 end
 
@@ -151,9 +153,11 @@ module UART (
     // State Transition Logic
 
     always @ (*) begin
+        
+        next_state = IDLE;
 
         case (current_state) 
-
+        
             IDLE: begin
 
                 if (RX_negedge) next_state = START_RX;
