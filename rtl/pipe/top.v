@@ -1,12 +1,10 @@
 `timescale 1ns/1ps
 
 module top (
-    input clk, sw0, sw1, RX,
+    input clk, rst_n_mem, rst_n_cpu, rst_clk, mem_control, RX,
     output TX,
-    output [1:0] led
+    output [15:0] led
 );
-
-    wire rst_n_cpu, rst_n_mem, rst_clk;
 
     wire [3:0] wea, web;
     wire [15:0] addra, addrb; // 32 KB for IMEM and DMEM total
@@ -15,18 +13,13 @@ module top (
     wire [31:0] doa, dob; // Port A is IMEM, Port B is DMEM
     wire [31:0] dia, dib;
     
-    reg [15:0] row_a_result, row_b_result;
     wire [15:0] row_a, row_b;
-    wire [1:0] setting;
-
-    localparam CPU_ON = 2'b01, MEM_ON = 2'b10;
     
-    assign setting = {sw1, sw0}; // 00 and 11 are RESET states, 01 is when CPU is exclusively on, 10 is when MemAccess is exclusively on
-    assign led = setting;
-
-    assign row_a = row_a_result;
-    assign row_b = row_b_result;
-
+    // mem_control determines what device has control of BRAM addressing, 0 is CPU, 1 is MemAccess for reading/writing RAM
+    
+    assign row_a = mem_control ? addra_mem >> 2 : addra_cpu >> 2;
+    assign row_b = mem_control ? addrb_mem >> 2 : addrb_cpu >> 2;
+  
     wire clk_out1;
     
     clk_wiz_0 INST1 (
@@ -69,6 +62,10 @@ module top (
     wire TX_enable, byte_done;
     wire [7:0] TX_data, RX_data;
     
+    assign led[15:2] = addra_cpu[13:0];
+    assign led[1] = byte_done;
+    assign led[0] = TX_enable;
+
     (* DONT_TOUCH = "yes" *) UART INST4 (
         .clk(clk_out1),
         .rst_n(rst_n_mem),
@@ -93,45 +90,6 @@ module top (
         .dia(dia),
         .TX_data(TX_data)
     );
-
-    always @ (*) begin
-        
-        case (setting) 
-
-            CPU_ON: begin
-
-                rst_n_cpu = 1;
-                rst_n_mem = 0;
-                rst_clk = 0;
-                row_a_result = addra_cpu >> 2;
-                row_b_result = addrb_cpu >> 2;
-
-            end
-
-            MEM_ON: begin
-
-                rst_n_cpu = 0;
-                rst_n_mem = 1;
-                rst_clk = 0;
-                row_a_result = addra_mem >> 2;
-                row_b_result = addrb_mem >> 2;
-
-            end
-
-            default: begin
-
-                rst_n_cpu = 0;
-                rst_n_mem = 0;
-                rst_clk = 1;
-                row_a_result = 0;
-                row_b_result = 0;
-
-            end
-
-        endcase
-
-
-    end
 
 
 endmodule
