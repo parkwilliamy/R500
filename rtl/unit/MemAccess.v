@@ -12,13 +12,14 @@ module MemAccess (
 );
 
     localparam ADDR_WIDTH = 16;
-    localparam IDLE = 3'b000, WRITE_1 = 3'b001, WRITE_2 = 3'b010, WRITE_3 = 3'b011, READ_1 = 3'b100, READ_2 = 3'b101, READ_3 = 3'b110, READ_4 = 3'b111;
-    reg [2:0] current_state, next_state;
+    localparam IDLE = 4'b0000, WRITE_1 = 4'b0001, WRITE_2 = 4'b0010, WRITE_3 = 4'b0011, READ_1 = 4'b0100, READ_2 = 4'b0101, READ_3 = 4'b0110, READ_4 = 4'b0111, READ_5 = 4'b1000;
+    reg [3:0] current_state, next_state;
 
     reg [55:0] write_frame;
     reg [31:0] read_frame;
     reg [2:0] msgidx;
-    reg [15:0] ADDR_HIGH, word_idx;
+    reg [15:0] ADDR_HIGH;
+    reg [1:0] word_idx;
 
     always @ (posedge clk) begin
 
@@ -35,6 +36,7 @@ module MemAccess (
             addrb <= 0;
             wea <= 0;
             dia <= 0;
+            ADDR_HIGH <= 16'h7ffc;
 
         end
 
@@ -46,6 +48,8 @@ module MemAccess (
 
                 IDLE: begin
                     
+                    write_frame <= 0;
+                    read_frame <= 0;
                     msgidx <= 0;
                     word_idx <= 0;
                     TX_enable <= 0;
@@ -102,7 +106,7 @@ module MemAccess (
 
                 end
 
-                READ_3: begin
+                READ_4: begin
 
                     TX_data <= dob[7:0];
                     word_idx <= word_idx+1;
@@ -111,7 +115,7 @@ module MemAccess (
                 end
                     
 
-                READ_4: begin
+                READ_5: begin
 
                     if (byte_done) begin
 
@@ -183,9 +187,15 @@ module MemAccess (
             end
 
             READ_4: begin
+
+                next_state = READ_5;
+
+            end
+
+            READ_5: begin
                 
                 if (addrb == ADDR_HIGH+4 && byte_done) next_state = IDLE;
-                else next_state = READ_4;
+                else next_state = READ_5;
 
             end
 
