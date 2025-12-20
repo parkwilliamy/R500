@@ -248,6 +248,7 @@ module CPU (
         .ALU_result(WB_ALU_result), 
         .pc_imm(WB_pc_imm), 
         .pc_4(WB_pc_4),
+        .COREMARK_COUNT(COREMARK_COUNT),
         .funct3(WB_funct3),
         .RegSrc(WB_RegSrc),
         .DMEM_word(dob),
@@ -366,6 +367,11 @@ module CPU (
         .ID_ValidReg(ID_ValidReg),
         .Stall(ID_Stall)
     );
+
+
+    // =================================== COREMARK =====================================
+
+    reg [31:0] COREMARK_COUNT;
     
     integer i;
     
@@ -638,6 +644,22 @@ module CPU (
         
         end
     
+    end
+
+    // CoreMark Timer
+
+    always @ (posedge clk) begin
+
+        if (!rst_n) begin
+
+            COREMARK_COUNT <= 0;
+
+        end else begin
+
+            COREMARK_COUNT <= COREMARK_COUNT+1;
+        
+        end
+
     end
     
 endmodule
