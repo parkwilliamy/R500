@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module WriteBack (
-    input [31:0] ALU_result, pc_imm, pc_4,
+    input [31:0] ALU_result, pc_imm, pc_4, COREMARK_COUNT,
     input [2:0] funct3,
     input [1:0] RegSrc,
     input [31:0] DMEM_word,
@@ -20,15 +20,21 @@ module WriteBack (
     
         DMEM_result = 32'b0;
 
-        case (funct3) 
-        
-            3'b000: DMEM_result = {{24{DMEM_shifted_word[7]}}, DMEM_shifted_word[7:0]}; // LB
-            3'b001: DMEM_result = {{16{DMEM_shifted_word[15]}}, DMEM_shifted_word[15:0]}; // LH
-            3'b010: DMEM_result = DMEM_shifted_word; // LW
-            3'b100: DMEM_result = {24'b0, DMEM_shifted_word[7:0]}; // LBU
-            3'b101: DMEM_result = {16'b0, DMEM_shifted_word[15:0]}; // LHU
+        if (ALU_result == 32'h0000FFFF) DMEM_result = COREMARK_COUNT; // reserved coremark timer address
 
-        endcase
+        else begin
+
+            case (funct3) 
+            
+                3'b000: DMEM_result = {{24{DMEM_shifted_word[7]}}, DMEM_shifted_word[7:0]}; // LB
+                3'b001: DMEM_result = {{16{DMEM_shifted_word[15]}}, DMEM_shifted_word[15:0]}; // LH
+                3'b010: DMEM_result = DMEM_shifted_word; // LW
+                3'b100: DMEM_result = {24'b0, DMEM_shifted_word[7:0]}; // LBU
+                3'b101: DMEM_result = {16'b0, DMEM_shifted_word[15:0]}; // LHU
+
+            endcase
+
+        end
 
         case (RegSrc) 
 
