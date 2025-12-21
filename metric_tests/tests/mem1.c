@@ -5,7 +5,6 @@ int main() {
     p[1] = 2;
     p[2] = 3;
     p[3] = 4;
-    while(1);
 
     int* CLK_CYCLE_ADDR = (int*)0x00004F00;
     int* INVALID_CLK_CYCLE_ADDR = (int*)0x00004F04;
