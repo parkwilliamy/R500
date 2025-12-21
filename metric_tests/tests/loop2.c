@@ -1,9 +1,11 @@
 int main() {
 
     int count = 0;
+    bool flag = 0;
     
     for (int i = 0; i < 1000; i++) {
-        count++;
+        if (flag) count++;
+        flag = !flag;
     }
 
     int* CLK_CYCLE_ADDR = (int*)0x00004F00;
