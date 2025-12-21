@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-| Date         : Sat Dec 20 15:57:28 2025
+| Date         : Sat Dec 20 22:32:41 2025
 | Host         : dt-wypark running 64-bit major release  (build 9200)
 | Command      : report_control_sets -verbose -file top_control_sets_placed.rpt
 | Design       : top
@@ -23,11 +23,11 @@ Table of Contents
 +----------------------------------------------------------+-------+
 |                          Status                          | Count |
 +----------------------------------------------------------+-------+
-| Total control sets                                       |    85 |
-|    Minimum number of control sets                        |    85 |
+| Total control sets                                       |    88 |
+|    Minimum number of control sets                        |    88 |
 |    Addition due to synthesis replication                 |     0 |
 |    Addition due to physical synthesis replication        |     0 |
-| Unused register locations in slices containing registers |   250 |
+| Unused register locations in slices containing registers |   254 |
 +----------------------------------------------------------+-------+
 * Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
 ** Run report_qor_suggestions for automated merging and remapping suggestions
@@ -39,15 +39,15 @@ Table of Contents
 +--------------------+-------+
 |       Fanout       | Count |
 +--------------------+-------+
-| Total control sets |    85 |
+| Total control sets |    88 |
 | >= 0 to < 4        |     1 |
-| >= 4 to < 6        |     0 |
-| >= 6 to < 8        |     4 |
+| >= 4 to < 6        |     1 |
+| >= 6 to < 8        |     2 |
 | >= 8 to < 10       |     4 |
-| >= 10 to < 12      |     3 |
-| >= 12 to < 14      |     0 |
+| >= 10 to < 12      |     1 |
+| >= 12 to < 14      |     1 |
 | >= 14 to < 16      |     0 |
-| >= 16              |    73 |
+| >= 16              |    78 |
 +--------------------+-------+
 * Control sets can be remapped at either synth_design or opt_design
 
@@ -58,12 +58,12 @@ Table of Contents
 +--------------+-----------------------+------------------------+-----------------+--------------+
 | Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
 +--------------+-----------------------+------------------------+-----------------+--------------+
-| No           | No                    | No                     |              99 |           39 |
+| No           | No                    | No                     |              99 |           35 |
 | No           | No                    | Yes                    |               0 |            0 |
-| No           | Yes                   | No                     |             843 |          327 |
-| Yes          | No                    | No                     |             926 |          399 |
+| No           | Yes                   | No                     |             875 |          327 |
+| Yes          | No                    | No                     |             968 |          348 |
 | Yes          | No                    | Yes                    |               0 |            0 |
-| Yes          | Yes                   | No                     |            2394 |          714 |
+| Yes          | Yes                   | No                     |            2508 |          774 |
 +--------------+-----------------------+------------------------+-----------------+--------------+
 
 
@@ -74,90 +74,93 @@ Table of Contents
 |     Clock Signal     |                   Enable Signal                  |                 Set/Reset Signal                 | Slice Load Count | Bel Load Count | Bels / Slice |
 +----------------------+--------------------------------------------------+--------------------------------------------------+------------------+----------------+--------------+
 |  INST1/inst/clk_out1 | INST4/TX_i_2_n_0                                 | INST4/TX_i_1_n_0                                 |                1 |              1 |         1.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[6][31]_i_1_n_0              | INST3/INST4/reg_file[6][4]_i_1_n_0               |                2 |              5 |         2.50 |
 |  INST1/inst/clk_out1 |                                                  | INST4/baud_count[5]_i_1_n_0                      |                2 |              6 |         3.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[10][24]_i_1_n_0             |                                                  |                4 |              6 |         1.50 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[9][23]_i_1_n_0              | INST3/INST4/reg_file[9][19]_i_1_n_0              |                2 |              6 |         3.00 |
-|  INST1/inst/clk_out1 |                                                  | INST5/TX_enable_i_1_n_0                          |                4 |              7 |         1.75 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[11][26]_i_1_n_0             |                                                  |                4 |              8 |         2.00 |
-|  INST1/inst/clk_out1 | INST3/EX_Branch                                  | INST3/INST2/rst_n_cpu                            |                4 |              8 |         2.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[3][26]_i_2_n_0              | INST3/INST4/reg_file[3][26]_i_1_n_0              |                4 |              7 |         1.75 |
 |  INST1/inst/clk_out1 | INST4/data_buffer[0]                             | INST4/TX_i_1_n_0                                 |                1 |              8 |         8.00 |
 |  INST1/inst/clk_out1 | INST4/RX_data[7]_i_1_n_0                         | INST4/TX_i_1_n_0                                 |                2 |              8 |         4.00 |
-|  INST1/inst/clk_out1 |                                                  | INST4/TX_i_1_n_0                                 |                4 |             10 |         2.50 |
-|  INST1/inst/clk_out1 | INST5/TX_data[7]_i_1_n_0                         | INST5/TX_enable_i_1_n_0                          |                4 |             10 |         2.50 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[9][23]_i_1_n_0              | INST3/INST4/reg_file[9][31]_i_1_n_0              |                3 |             10 |         3.33 |
-|  INST1/inst/clk_out1 | INST5/read_frame[15]_i_1_n_0                     | INST5/TX_enable_i_1_n_0                          |                2 |             16 |         8.00 |
-|  INST1/inst/clk_out1 | INST5/addrb[15]_i_1_n_0                          | INST5/TX_enable_i_1_n_0                          |                3 |             16 |         5.33 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[9][23]_i_1_n_0              |                                                  |                7 |             16 |         2.29 |
-|  INST1/inst/clk_out1 |                                                  | INST3/EX_Jump                                    |                8 |             20 |         2.50 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[11][26]_i_1_n_0             | INST3/INST4/reg_file[11][31]_i_1_n_0             |                3 |             24 |         8.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[10][24]_i_1_n_0             | INST3/INST4/reg_file[10][31]_i_1_n_0             |                4 |             26 |         6.50 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[19][31]_i_1_n_0             |                                                  |               16 |             32 |         2.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[1][31]_i_1_n_0              |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[18][24]_i_1_n_0             |                                                  |               16 |             32 |         2.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[17][23]_i_1_n_0             |                                                  |               13 |             32 |         2.46 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[15][31]_i_1_n_0             |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[16][31]_i_1_n_0             |                                                  |               16 |             32 |         2.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[3][31]_i_1_n_0              |                                                  |               11 |             32 |         2.91 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[13][31]_i_1_n_0             |                                                  |               12 |             32 |         2.67 |
+|  INST1/inst/clk_out1 | INST5/TX_data[7]_i_1_n_0                         | INST5/TX_enable_i_1_n_0                          |                5 |              8 |         1.60 |
+|  INST1/inst/clk_out1 |                                                  | INST5/TX_enable_i_1_n_0                          |                4 |              9 |         2.25 |
+|  INST1/inst/clk_out1 |                                                  | INST4/TX_i_1_n_0                                 |                5 |             10 |         2.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[5][28]_i_1_n_0              | INST3/INST4/reg_file[6][4]_i_1_n_0               |                3 |             12 |         4.00 |
+|  INST1/inst/clk_out1 | INST5/addrb[15]_i_1_n_0                          | INST5/TX_enable_i_1_n_0                          |                7 |             16 |         2.29 |
+|  INST1/inst/clk_out1 | INST5/ADDR_HIGH[0]                               | INST5/TX_enable_i_1_n_0                          |                5 |             16 |         3.20 |
+|  INST1/inst/clk_out1 |                                                  | INST3/EX_Jump                                    |                5 |             20 |         4.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[5][28]_i_1_n_0              |                                                  |                7 |             20 |         2.86 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[3][26]_i_2_n_0              |                                                  |               10 |             25 |         2.50 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[6][31]_i_1_n_0              |                                                  |               16 |             27 |         1.69 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[23][31]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[22][31]_i_1_n_0             |                                                  |               12 |             32 |         2.67 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[21][31]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[20][31]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[19][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[18][26]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[17][21]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[15][31]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[16][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[14][31]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[13][31]_i_1_n_0             |                                                  |               14 |             32 |         2.29 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[11][31]_i_1_n_0             |                                                  |               12 |             32 |         2.67 |
 |  INST1/inst/clk_out1 | INST3/INST4/reg_file[12][31]_i_1_n_0             |                                                  |               12 |             32 |         2.67 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[5][31]_i_1_n_0              |                                                  |               15 |             32 |         2.13 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[4][31]_i_1_n_0              |                                                  |                7 |             32 |         4.57 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[31][31]_i_1_n_0             |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[25][31]_i_1_n_0             |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[26][24]_i_1_n_0             |                                                  |               12 |             32 |         2.67 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[2][31]_i_1_n_0              |                                                  |               11 |             32 |         2.91 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[29][31]_i_1_n_0             |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[30][31]_i_1_n_0             |                                                  |               17 |             32 |         1.88 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[28][31]_i_1_n_0             |                                                  |               18 |             32 |         1.78 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[27][31]_i_1_n_0             |                                                  |               15 |             32 |         2.13 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[24][24]_i_1_n_0             |                                                  |               16 |             32 |         2.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[22][31]_i_1_n_0             |                                                  |               18 |             32 |         1.78 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[14][31]_i_1_n_0             |                                                  |                8 |             32 |         4.00 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[7][31]_i_1_n_0              |                                                  |               14 |             32 |         2.29 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[6][31]_i_1_n_0              |                                                  |               13 |             32 |         2.46 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[23][31]_i_1_n_0             |                                                  |               15 |             32 |         2.13 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[20][31]_i_1_n_0             |                                                  |               13 |             32 |         2.46 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[21][31]_i_1_n_0             |                                                  |               15 |             32 |         2.13 |
-|  INST1/inst/clk_out1 | INST3/INST4/reg_file[8][31]_i_1_n_0              |                                                  |               11 |             32 |         2.91 |
-|  INST1/inst/clk_out1 | INST3/EX_BHTaddr[7]_i_2_n_0                      | INST3/INST2/rst_n_cpu                            |               16 |             42 |         2.62 |
-|  INST1/inst/clk_out1 | INST5/addra[15]_i_1_n_0                          | INST5/TX_enable_i_1_n_0                          |               10 |             52 |         5.20 |
-|  INST1/inst/clk_out1 | INST5/write_frame[55]_i_1_n_0                    | INST5/TX_enable_i_1_n_0                          |                9 |             56 |         6.22 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[15][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[15][60]_i_1_n_0 |               16 |             58 |         3.62 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[16][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[16][60]_i_1_n_0 |               16 |             58 |         3.62 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[19][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[19][60]_i_1_n_0 |               11 |             58 |         5.27 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[12][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[12][60]_i_1_n_0 |               19 |             58 |         3.05 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[10][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[10][60]_i_1_n_0 |               13 |             58 |         4.46 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[14][60]_i_2_n_0 | INST3/INST2/rst_n_cpu                            |               14 |             58 |         4.14 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[13][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[13][60]_i_1_n_0 |               16 |             58 |         3.62 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[11][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[11][60]_i_1_n_0 |               17 |             58 |         3.41 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[18][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[18][60]_i_1_n_0 |               22 |             58 |         2.64 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[17][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[17][60]_i_1_n_0 |               25 |             58 |         2.32 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[0][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[0][60]_i_1_n_0  |               14 |             58 |         4.14 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[8][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[8][60]_i_1_n_0  |               41 |             58 |         1.41 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[9][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[9][60]_i_1_n_0  |               32 |             58 |         1.81 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[30][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[2][31]_i_1_n_0              |                                                  |               13 |             32 |         2.46 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[10][26]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[4][31]_i_1_n_0              |                                                  |               14 |             32 |         2.29 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[31][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[29][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[27][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[28][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/retired_instructions[0]_i_1_n_0            | INST3/INST2/rst_n_cpu                            |                8 |             32 |         4.00 |
+|  INST1/inst/clk_out1 | INST3/correct_predictions[0]                     | INST3/INST2/rst_n_cpu                            |                8 |             32 |         4.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[1][31]_i_1_n_0              |                                                  |               13 |             32 |         2.46 |
+|  INST1/inst/clk_out1 | INST5/read_frame[31]_i_1_n_0                     | INST5/TX_enable_i_1_n_0                          |                5 |             32 |         6.40 |
+|  INST1/inst/clk_out1 | INST3/invalid_clk_cycles[0]_i_1_n_0              | INST3/INST2/rst_n_cpu                            |                8 |             32 |         4.00 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[25][31]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[7][31]_i_1_n_0              |                                                  |               12 |             32 |         2.67 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[26][26]_i_1_n_0             |                                                  |               11 |             32 |         2.91 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[24][26]_i_1_n_0             |                                                  |               10 |             32 |         3.20 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[8][31]_i_1_n_0              |                                                  |               13 |             32 |         2.46 |
+|  INST1/inst/clk_out1 | INST3/INST4/reg_file[9][19]_i_1_n_0              |                                                  |               12 |             32 |         2.67 |
+|  INST1/inst/clk_out1 | INST3/EX_BHTaddr[7]_i_2_n_0                      | INST3/INST2/rst_n_cpu                            |               16 |             40 |         2.50 |
+|  INST1/inst/clk_out1 | INST3/EX_Branch                                  | INST3/INST2/rst_n_cpu                            |               11 |             40 |         3.64 |
+|  INST1/inst/clk_out1 | INST5/addra[15]_i_1_n_0                          | INST5/TX_enable_i_1_n_0                          |               13 |             52 |         4.00 |
+|  INST1/inst/clk_out1 | INST5/write_frame[55]_i_1_n_0                    | INST5/TX_enable_i_1_n_0                          |               12 |             56 |         4.67 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[8][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[8][60]_i_1_n_0  |               43 |             58 |         1.35 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[31][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[31][60]_i_1_n_0 |               23 |             58 |         2.52 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[5][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[5][60]_i_1_n_0  |               18 |             58 |         3.22 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[6][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[6][60]_i_1_n_0  |               29 |             58 |         2.00 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[27][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[27][60]_i_1_n_0 |               16 |             58 |         3.62 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[26][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[26][60]_i_1_n_0 |               17 |             58 |         3.41 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[29][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[29][60]_i_1_n_0 |               17 |             58 |         3.41 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[28][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[28][60]_i_1_n_0 |               20 |             58 |         2.90 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[2][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[2][60]_i_1_n_0  |               18 |             58 |         3.22 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[24][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[24][60]_i_1_n_0 |               16 |             58 |         3.62 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[3][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[3][60]_i_1_n_0  |               17 |             58 |         3.41 |
 |  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[1][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[1][60]_i_1_n_0  |               17 |             58 |         3.41 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[7][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[7][60]_i_1_n_0  |               17 |             58 |         3.41 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[31][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[31][60]_i_1_n_0 |               32 |             58 |         1.81 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[5][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[5][60]_i_1_n_0  |               20 |             58 |         2.90 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[3][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[3][60]_i_1_n_0  |               19 |             58 |         3.05 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[4][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[4][60]_i_1_n_0  |               24 |             58 |         2.42 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[30][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[30][60]_i_1_n_0 |               14 |             58 |         4.14 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[2][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[2][60]_i_1_n_0  |               17 |             58 |         3.41 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[29][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[29][60]_i_1_n_0 |               15 |             58 |         3.87 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[25][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[25][60]_i_1_n_0 |               14 |             58 |         4.14 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[27][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[27][60]_i_1_n_0 |               20 |             58 |         2.90 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[26][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[26][60]_i_1_n_0 |               18 |             58 |         3.22 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[6][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[6][60]_i_1_n_0  |               23 |             58 |         2.52 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[28][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[28][60]_i_1_n_0 |               14 |             58 |         4.14 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[15][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[15][60]_i_1_n_0 |               19 |             58 |         3.05 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[19][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[19][60]_i_1_n_0 |               12 |             58 |         4.83 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[18][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[18][60]_i_1_n_0 |               14 |             58 |         4.14 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[22][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[22][60]_i_1_n_0 |               17 |             58 |         3.41 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[21][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[21][60]_i_1_n_0 |               13 |             58 |         4.46 |
 |  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[23][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[23][60]_i_1_n_0 |               13 |             58 |         4.46 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[24][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[24][60]_i_1_n_0 |               13 |             58 |         4.46 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[21][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[21][60]_i_1_n_0 |               14 |             58 |         4.14 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[20][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[20][60]_i_1_n_0 |               11 |             58 |         5.27 |
-|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[22][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[22][60]_i_1_n_0 |               12 |             58 |         4.83 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[16][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[16][60]_i_1_n_0 |               14 |             58 |         4.14 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[25][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[25][60]_i_1_n_0 |               15 |             58 |         3.87 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[17][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[17][60]_i_1_n_0 |               15 |             58 |         3.87 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[11][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[11][60]_i_1_n_0 |               17 |             58 |         3.41 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[10][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[10][60]_i_1_n_0 |               18 |             58 |         3.22 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[12][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[12][60]_i_1_n_0 |               12 |             58 |         4.83 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[20][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[20][60]_i_1_n_0 |               14 |             58 |         4.14 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[0][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[0][60]_i_1_n_0  |               22 |             58 |         2.64 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[14][60]_i_2_n_0 | INST3/INST2/rst_n_cpu                            |               19 |             58 |         3.05 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[13][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[13][60]_i_1_n_0 |               15 |             58 |         3.87 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[9][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[9][60]_i_1_n_0  |               33 |             58 |         1.76 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[4][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[4][60]_i_1_n_0  |               19 |             58 |         3.05 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[7][60]_i_2_n_0  | INST3/INST2/branch_target_buffer[7][60]_i_1_n_0  |               22 |             58 |         2.64 |
+|  INST1/inst/clk_out1 | INST3/INST2/branch_target_buffer[30][60]_i_2_n_0 | INST3/INST2/branch_target_buffer[30][60]_i_1_n_0 |               20 |             58 |         2.90 |
 |  INST1/inst/clk_out1 | INST3/EX_BHTaddr[7]_i_2_n_0                      | INST3/ID_branch_prediction[0]                    |               17 |             72 |         4.24 |
-|  INST1/inst/clk_out1 |                                                  |                                                  |               39 |             99 |         2.54 |
-|  INST1/inst/clk_out1 | INST3/EX_BHTaddr[7]_i_2_n_0                      | INST3/EX_rs2[0]                                  |               50 |            183 |         3.66 |
-|  INST1/inst/clk_out1 |                                                  | INST3/INST2/rst_n_cpu                            |              309 |            800 |         2.59 |
+|  INST1/inst/clk_out1 |                                                  |                                                  |               35 |             99 |         2.83 |
+|  INST1/inst/clk_out1 | INST3/EX_BHTaddr[7]_i_2_n_0                      | INST3/EX_rs2[0]                                  |               52 |            183 |         3.52 |
+|  INST1/inst/clk_out1 |                                                  | INST3/INST2/rst_n_cpu                            |              311 |            830 |         2.67 |
 +----------------------+--------------------------------------------------+--------------------------------------------------+------------------+----------------+--------------+
 
 

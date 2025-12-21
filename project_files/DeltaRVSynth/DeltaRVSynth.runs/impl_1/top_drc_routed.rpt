@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-| Date         : Sat Dec 20 15:58:25 2025
+| Date         : Sat Dec 20 22:33:52 2025
 | Host         : dt-wypark running 64-bit major release  (build 9200)
 | Command      : report_drc -file top_drc_routed.rpt -pb top_drc_routed.pb -rpx top_drc_routed.rpx
 | Design       : top
@@ -35,8 +35,7 @@ Table of Contents
 -----------------
 RTSTAT-10#1 Warning
 No routable loads  
-6 net(s) have no routable loads. The problem bus(es) and/or net(s) are INST5/addra[0], INST5/addra[15], INST5/addra[1], INST5/addrb[0],
-INST5/addrb[15], INST5/addrb[1].
+3 net(s) have no routable loads. The problem bus(es) and/or net(s) are INST5/addra[0], INST5/addra[15], INST5/addra[1].
 Related violations: <none>
 
 

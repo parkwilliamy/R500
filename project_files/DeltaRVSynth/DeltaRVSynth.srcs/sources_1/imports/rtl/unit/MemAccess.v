@@ -16,8 +16,9 @@ module MemAccess (
     reg [2:0] current_state, next_state;
 
     reg [55:0] write_frame;
-    reg [15:0] read_frame;
+    reg [31:0] read_frame;
     reg [2:0] msgidx;
+    reg [15:0] ADDR_HIGH;
     reg [1:0] word_idx;
 
     always @ (posedge clk) begin
@@ -35,6 +36,7 @@ module MemAccess (
             addrb <= 0;
             wea <= 0;
             dia <= 0;
+            ADDR_HIGH <= 16'h7ffc;
 
         end
 
@@ -83,15 +85,17 @@ module MemAccess (
                     if (byte_done) begin
 
                         msgidx <= msgidx+1;
-                        read_frame <= {RX_data, read_frame[15:8]};
+                        read_frame <= {RX_data, read_frame[31:8]};
 
                     end
 
                 end
 
-                READ_2: begin 
+                READ_2: begin
 
-                    addrb <= read_frame[ADDR_WIDTH-1:0]; 
+                    ADDR_HIGH <= read_frame[ADDR_WIDTH-1:0];
+                    addrb <= read_frame[ADDR_WIDTH-1+16:16]; // ADDR_LOW
+                    
 
                 end
 
@@ -108,8 +112,9 @@ module MemAccess (
 
                     if (byte_done) begin
 
-                        word_idx <= word_idx+1; // used to loop between 0-3 and select parts of data word to transmit
-                        TX_data <= dob[7+8*word_idx -: 8];
+                        word_idx <= (word_idx+1)%4; // used to loop between 0-3 and select parts of data word to transmit
+                        if (addrb != ADDR_HIGH+4) TX_data <= dob[7+8*word_idx -: 8];
+                        if (word_idx == 3) addrb <= addrb+4;
 
                     end
 
@@ -130,8 +135,8 @@ module MemAccess (
 
             IDLE: begin
 
-                if (RX_data == 8'h0F && byte_done) next_state = WRITE_1;
-                else if (RX_data == 8'hFF && byte_done) next_state = READ_1;
+                if (RX_data == 8'h0F) next_state = WRITE_1;
+                else if (RX_data == 8'hFF) next_state = READ_1;
                 else next_state = IDLE;
 
             end
@@ -151,7 +156,7 @@ module MemAccess (
 
             READ_1: begin
 
-                if (msgidx == 1 && byte_done) next_state = READ_2;
+                if (msgidx == 3 && byte_done) next_state = READ_2;
                 else next_state = READ_1;
 
             end
@@ -176,7 +181,7 @@ module MemAccess (
 
             READ_5: begin
                 
-                if (word_idx == 3 && byte_done) next_state = IDLE;
+                if (addrb == ADDR_HIGH+4 && byte_done) next_state = IDLE;
                 else next_state = READ_5;
 
             end

@@ -41,7 +41,7 @@ def main():
                 ADDR_HIGH = "".join(input(f"Enter end address, must be a multiple of 4 and between {hex(ADDR_LOW)} and {hex(MEM_SIZE)}: ").split())
                 ADDR_HIGH = int(ADDR_HIGH, 0)
 
-            read_mem_frame(ADDR_LOW)
+            read_mem_frame(ADDR_LOW, ADDR_HIGH)
 
             data_word = 0
 
@@ -96,25 +96,22 @@ def write_mem_frame(addra, wea, word):
     ]
     ser.write(bytes(frame))
 
-def read_mem_frame(addrb):
+def read_mem_frame(ADDR_LOW, ADDR_HIGH):
 
     start = 0xFF
 
-    addrb = format(addrb, "016b")
+    ADDR_LOW = format(ADDR_LOW, "016b")
+    ADDR_HIGH = format(ADDR_HIGH, "016b")
 
     frame = [
         start,
-        int(addrb[8:16], 2),
-        int(addrb[0:8],  2),
+        int(ADDR_HIGH[8:16], 2),
+        int(ADDR_HIGH[0:8],  2),
+        int(ADDR_LOW[8:16],  2),
+        int(ADDR_LOW[0:8],   2),
     ]
 
     ser.write(bytes(frame))
-
-def read_mem_region(ADDR_LOW, ADDR_HIGH):
-
-    for addr in range(ADDR_LOW, ADDR_HIGH + 4, 4):
-        read_mem_frame(addr)
-
 
 if __name__ == "__main__":
     main()

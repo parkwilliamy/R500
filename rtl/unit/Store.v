@@ -42,7 +42,7 @@ module Store (
 
                     end
 
-                    3'b001: begin // SH
+                    3'b001: begin // SH 
 
                         web = (4'b0011 << byte_offset);
                         dib[15+8*byte_offset -: 16] = final_data[15:0]; 

@@ -51,6 +51,11 @@ module CPU (
     reg [4:0] WB_rd;
 
 
+    // ***************************** PERFORMANCE METRICS ********************************
+
+    reg [31:0] clk_cycles, invalid_clk_cycles, retired_instructions, correct_predictions, total_predictions;
+
+
     // *********************************** MODULES **************************************
                
     // =============================== INSTRUCTION FETCH ================================
@@ -226,6 +231,11 @@ module CPU (
         .MemWrite(MEM_MemWrite_wire),
         .addrb(MEM_ALU_result_wire),
         .rs2_data(MEM_rs2_data_final),
+        .clk_cycles(clk_cycles),
+        .invalid_clk_cycles(invalid_clk_cycles),
+        .retired_instructions(retired_instructions),
+        .correct_predictions(correct_predictions),
+        .total_predictions(total_predictions),
         .funct3(MEM_funct3_wire),
         .web(web),
         .dib(dib)
@@ -376,12 +386,14 @@ module CPU (
         if (!rst_n) begin
 
             IF_pc <= 32'b0; 
+            clk_cycles <= 0;
 
         end
 
         else begin
 
-            if (!ID_Stall) IF_pc <= next_pc; 
+            if (!ID_Stall) IF_pc <= next_pc;
+            clk_cycles <= clk_cycles + 1; 
 
         end
 
@@ -393,6 +405,8 @@ module CPU (
     
         if (!rst_n) begin
         
+            invalid_clk_cycles <= 0;
+
             ID_PostFlush <= 0;
             ID_pc <= 32'b0;
             ID_pc_4 <= 32'b0;
@@ -403,6 +417,8 @@ module CPU (
         end else begin
         
             ID_PostFlush <= 0;
+
+            if (!ID_Valid) invalid_clk_cycles <= invalid_clk_cycles + 1;
         
             if (ID_Flush) begin
             
@@ -434,6 +450,9 @@ module CPU (
     always @ (posedge clk) begin
     
         if (!rst_n) begin
+
+            correct_predictions <= 0;
+            total_predictions <= 0;
         
             gh <= 0;
             EX_pc_4 <= 32'b0;
@@ -465,6 +484,8 @@ module CPU (
             end
         
         end else begin
+
+            if (EX_Branch) total_predictions <= total_predictions+1;
      
             if (EX_Flush) begin
             
@@ -554,11 +575,13 @@ module CPU (
                     2: begin
                         
                         if (BHT[EX_BHTaddr] > 0)  BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]-1;
+                        correct_predictions <= correct_predictions+1;
     
                     end
                     3: begin
                         
                         if (BHT[EX_BHTaddr] < 3 && EX_branch_prediction > 1)  BHT[EX_BHTaddr] <= BHT[EX_BHTaddr]+1;
+                        correct_predictions <= correct_predictions+1;
     
                     end
     
@@ -623,8 +646,11 @@ module CPU (
             WB_RegWrite <= 0;
             WB_ALU_result <= 0;
             WB_rd <= 0;
+            retired_instructions <= 0;
         
         end else begin
+
+            if (WB_ValidReg != 3'b000) retired_instructions <= retired_instructions+1;
         
             WB_pc_4 <= MEM_pc_4;
             WB_pc_imm <= MEM_pc_imm;
@@ -639,5 +665,5 @@ module CPU (
         end
     
     end
-    
+
 endmodule
