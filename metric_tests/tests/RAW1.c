@@ -17,7 +17,7 @@ int main() {
     volatile int* RESULT_ADDR = (volatile int*)0x6000;
 
     RESULT_ADDR[0] = b;
-    RESULT_ADDR[1] = d;
+    //RESULT_ADDR[1] = d;
     //RESULT_ADDR[2] = f;
     //RESULT_ADDR[3] = h;
     
