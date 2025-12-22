@@ -7,13 +7,13 @@ int main() {
     
     c = 1;
     d = c+2;
-    /*
+    
     e = 5;
     f = e-1;
     
     g = 2;
     h = g | 0;
-    */
+    
     volatile int* RESULT_ADDR = (volatile int*)0x6000;
 
     RESULT_ADDR[0] = b;
