@@ -18,7 +18,7 @@ int main() {
         uint32_t a = xorshift32(&seed) & 1;
 
         if (a) a_taken++;        // Branch A (random)
-        //if (!a) b_taken++;        // Branch B (perfectly correlated)
+        //if (a) b_taken++;        // Branch B (perfectly correlated)
     }
 
     *OUT = b_taken;

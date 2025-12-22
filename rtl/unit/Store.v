@@ -11,7 +11,7 @@ module Store (
     wire [1:0] byte_offset;
     assign byte_offset = addrb % 4;
 
-    localparam CLK_CYCLE_ADDR = 32'h4F00, INVALID_CLK_CYCLE_ADDR = 32'h4F04, RETIRED_INSTRUCTIONS_ADDR = 32'h4F08, CORRECT_PREDICTIONS_ADDR = 32'h4F0C, TOTAL_PREDICTIONS_ADDR = 32'h4F10;
+    localparam CLK_CYCLE_ADDR = 32'h5000, INVALID_CLK_CYCLE_ADDR = 32'h5004, RETIRED_INSTRUCTIONS_ADDR = 32'h5008, CORRECT_PREDICTIONS_ADDR = 32'h500C, TOTAL_PREDICTIONS_ADDR = 32'h5010;
 
     reg [31:0] final_data;
 
@@ -42,7 +42,7 @@ module Store (
 
                     end
 
-                    3'b001: begin // SH 
+                    3'b001: begin // SH
 
                         web = (4'b0011 << byte_offset);
                         dib[15+8*byte_offset -: 16] = final_data[15:0]; 

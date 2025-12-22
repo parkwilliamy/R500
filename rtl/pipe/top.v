@@ -62,7 +62,7 @@ module top (
     wire TX_enable, byte_done;
     wire [7:0] TX_data, RX_data;
     
-    assign led[15:2] = addra_cpu[13:0];
+    assign led[15:2] = addra_cpu[15:2];
     assign led[1] = byte_done;
     assign led[0] = TX_enable;
 
