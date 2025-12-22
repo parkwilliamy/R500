@@ -1,8 +1,8 @@
 int main() {
 
-    *(volatile int*)0x5000 = 32;
-    *(volatile int*)0x5004 = 64;
-    *(volatile int*)0x5008 = 128;
+    *(volatile int*)0x5000 = 0xdeadbeef;
+    *(volatile int*)0x5004 = 0xcafef00d;
+    *(volatile int*)0x5008 = 0xfee1dead;
 
     volatile int a = *(volatile int*)0x5000;
     *(volatile int*)0x5020 = a;
