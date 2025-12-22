@@ -24,7 +24,7 @@ int main() {
     OUT[0] = a_taken;
     OUT[1] = b_taken;
 
-
+    /*
     volatile int* CLK_CYCLE_ADDR = (volatile int*)0x00005000;
     volatile int* INVALID_CLK_CYCLE_ADDR = (volatile int*)0x00005004;
     volatile int* RETIRED_INSTRUCTIONS_ADDR = (volatile int*)0x00005008;
@@ -36,6 +36,6 @@ int main() {
     *RETIRED_INSTRUCTIONS_ADDR = 0;
     *CORRECT_PREDICTIONS_ADDR = 0;
     *TOTAL_PREDICTIONS_ADDR = 0;
-
+    */
     while (1);
 }
