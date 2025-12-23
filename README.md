@@ -1,6 +1,7 @@
 # R500
 ## Features
 - R500 is a 32-bit processor based on the RISC-V architecture
+- R500 is 100% compliant with the RV32I ISA based on the official compliance test suite (see below for more details)
 - R500 has an average CPI of 1.23*, branch predictor accuracy of 96.5%**, and a throughput of 46.3 million instructions per second*
 - Implemented on the Xilinx Artix-7 FPGA with 20KB of instruction memory and 12KB of data memory
 - Utilizes a 5-stage pipeline with global branch prediction
