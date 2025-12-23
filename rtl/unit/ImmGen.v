@@ -14,7 +14,7 @@ module ImmGen (
     reg [31:0] imm3;
     reg [31:0] imm4;
 
-    localparam [6:0] // opcodes for different instruction types
+    localparam [6:0] // Opcodes for different instruction types
         OP_I = 7'b0010011,
         OP_I_LD = 7'b0000011,
         OP_I_FENCE = 7'b0001111,
@@ -28,7 +28,7 @@ module ImmGen (
     always @(*) begin
 
         opcode = instruction[6:0];
-        funct3 = instruction[14:12]; // used for I-type instructions
+        funct3 = instruction[14:12]; // Used for I-type instructions
 
         case (opcode)
 
@@ -53,7 +53,7 @@ module ImmGen (
                 intimm2 = {instruction[31], instruction[19:12], instruction[20], instruction[30:21]};
             end
             default: begin 
-                intimm1 = 0; // only for R-type format
+                intimm1 = 0; // Only for R-type format
                 intimm2 = 0;
             end
 

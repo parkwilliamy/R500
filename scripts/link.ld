@@ -72,7 +72,7 @@ SECTIONS
     __bss_end = .;
   } > DMEM
 
-  /* Optional heap start/end if you ever add malloc (or just for debug) */
+  /* Optional heap start/end */
   . = ALIGN(8);
   __heap_start = .;
   __heap_end   = ORIGIN(DMEM) + LENGTH(DMEM);

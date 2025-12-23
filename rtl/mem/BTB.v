@@ -3,10 +3,10 @@
 module BTB (
     input clk, rst_n, write, ID_Branch,
     input [31:0] IF_pc, ID_pc,
-    input [31:0] pc_imm_in,
-    output reg [31:0] pc_imm_out,
-    output hit,
-    output reg IF_Branch, IF_Jump
+    input [31:0] pc_imm_in, // Computed branch target address to write to BTB during ID
+    output reg [31:0] pc_imm_out, // Branch target address to read from BTB in IF
+    output hit, // 0 if branch target address wasn't found for a given branch instruction, 1 otherwise
+    output reg IF_Branch, IF_Jump // These signals indicate whether the fetched target address was for a branch or jump instruction
 );
 
     // 2-way set associative cache
@@ -16,7 +16,14 @@ module BTB (
                 SET_ID_WIDTH = 4,
                 LINE_WIDTH = 61;
 
-    reg [LINE_WIDTH-1:0] branch_target_buffer [NUM_OF_LINES-1:0]; // width = tag_bits + pc_imm + branch bit + valid bit + FIFO bit
+    reg [LINE_WIDTH-1:0] branch_target_buffer [NUM_OF_LINES-1:0]; // Line = tag + pc_imm + branch bit + valid bit + FIFO bit
+
+    // For Branch bit, 0 means jump, 1 means branch
+    // For Valid bit, 1 means the pc_imm value is valid
+    // For FIFO bit, 1 means the line came in first
+
+    // Tags, Sets, and Lines are split into IF and ID signals because the BTB can be used in both IF and ID stages
+    // BTB is read in IF, written in ID
 
     wire [TAG_WIDTH-1:0] IF_tag, ID_tag;
     wire [SET_ID_WIDTH-1:0] IF_set_id, ID_set_id;
@@ -31,10 +38,6 @@ module BTB (
     assign ID_set_id = ID_pc[5:2];
     assign ID_line_id1 = ID_set_id*LINES_PER_SET;
     assign ID_line_id2 = ID_line_id1+1;
-
-    // For Branch bit, 0 means jump, 1 means branch
-    // For Valid bit, 1 means the pc_imm value is valid
-    // For FIFO bit, 1 means the line came in first
 
     wire IF_branch1, IF_branch2, IF_valid1, IF_valid2, IF_fifo1, IF_fifo2;
     assign IF_branch1 = branch_target_buffer[IF_line_id1][2];
@@ -64,8 +67,9 @@ module BTB (
     assign set_full = ID_valid1 && ID_valid2;
 
     assign hit = ((IF_tag1 == IF_tag && IF_valid1) || (IF_tag2 == IF_tag && IF_valid2));
+    
 
-    // BTB reads
+    // =============================== BTB Reads ================================
 
     always @ (*) begin
 
@@ -73,7 +77,7 @@ module BTB (
         IF_Jump = 0;
         pc_imm_out = 0;
 
-        // if tag matches and valid bit is 1
+        // If tag matches and valid bit is 1
         if (IF_tag1 == IF_tag && IF_valid1) begin
             
             if (!IF_branch1) begin
@@ -116,9 +120,12 @@ module BTB (
         
     end
 
-    integer i;
 
-    // BTB writes
+    // =============================== BTB Writes ================================
+
+    // Cache writes to the first invalid line it finds, otherwise, replace the oldest line (FIFO bit of 1)
+
+    integer i;
 
     always @ (posedge clk) begin
 
@@ -126,7 +133,7 @@ module BTB (
 
             for (i = 0; i < NUM_OF_LINES; i = i+1) begin
 
-                branch_target_buffer[i] <= 61'h4; // set branch bit to 1 by default
+                branch_target_buffer[i] <= 61'h4; // Initialize branch bit to 1, valid bit to 0, FIFO bit to 0
 
             end
 
@@ -136,7 +143,7 @@ module BTB (
 
             if (write) begin   
 
-                // if data is invalid (ie after a reset) or set is full and current line was the first to come in
+                // If data is invalid (i.e. after a reset) or set is full and current line is the oldest
                 if (!ID_valid1 || set_full && ID_fifo1) begin
 
                     branch_target_buffer[ID_line_id2][0] <= 1;

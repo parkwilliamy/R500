@@ -9,6 +9,7 @@ module RegFile (
 
     reg [31:0] reg_file [31:0];
 
+    // RegFile supports internal WB -> ID forwarding
     assign rs1_data = (RegWrite && rd == rs1 && rs1 != 0) ? rd_write_data : reg_file[rs1];
     assign rs2_data = (RegWrite && rd == rs2 && rs2 != 0) ? rd_write_data : reg_file[rs2];
 
@@ -24,7 +25,7 @@ module RegFile (
 
         end
 
-        if (rd > 0 && RegWrite) reg_file[rd] <= rd_write_data; // ensure address written to is from 1-31 and RegWrite is HIGH
+        if (rd > 0 && RegWrite) reg_file[rd] <= rd_write_data; // Ensure address written to is from 1-31 and RegWrite is HIGH
         
     end
     

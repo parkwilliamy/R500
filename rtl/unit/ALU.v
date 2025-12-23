@@ -8,7 +8,7 @@ module ALU (
     output reg carry
 );
 
-    localparam [3:0] // different fields for ALU operations
+    localparam [3:0] // Different fields for ALU operations
         ADD = 4'b0000,
         SUB = 4'b1000,
         AND = 4'b0111,
@@ -22,7 +22,7 @@ module ALU (
 
     assign zero = (ALU_result == 0);
     assign sign = ($signed(ALU_result) < 0);
-    assign overflow = (op1[31] != op2[31]) && (ALU_result[31] != op1[31]); // detects overflow for subtraction used in branch decisions
+    assign overflow = (op1[31] != op2[31]) && (ALU_result[31] != op1[31]); // Detects overflow for subtraction used in branch decisions
 
     always @(*) begin
     

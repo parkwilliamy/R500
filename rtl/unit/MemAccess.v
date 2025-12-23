@@ -2,23 +2,26 @@
 
 module MemAccess (
     input clk, rst_n, byte_done,
-    input [7:0] RX_data,
+    input [7:0] RX_data, // Received data from sender
     input [31:0] dob,
-    output reg TX_enable,
+    output reg TX_enable, // Indicates when data can be transmitted over TX
     output reg [15:0] addra, addrb,
     output reg [3:0] wea,
     output reg [31:0] dia,
-    output reg [7:0] TX_data
+    output reg [7:0] TX_data // Data to transmit over TX
 );
 
     localparam ADDR_WIDTH = 16;
     localparam IDLE = 3'b000, WRITE_1 = 3'b001, WRITE_2 = 3'b010, READ_1 = 3'b011, READ_2 = 3'b100, READ_3 = 3'b101, READ_4 = 3'b110, READ_5 = 3'b111;
     reg [2:0] current_state, next_state;
 
+    // Buffers to hold bytes until message can be processed
     reg [55:0] write_frame;
-    reg [15:0] read_frame;
-    reg [2:0] msgidx;
-    reg [1:0] word_idx;
+    reg [31:0] read_frame;
+
+    reg [2:0] msgidx; // Byte index used during data reception on RX
+    reg [1:0] word_idx; // Word index used during BRAM data transmission on TX
+    reg [15:0] ADDR_HIGH; // Stores last address to read data from in a read message
 
     always @ (posedge clk) begin
 
@@ -35,6 +38,7 @@ module MemAccess (
             addrb <= 0;
             wea <= 0;
             dia <= 0;
+            ADDR_HIGH <= 16'h7ffc;
 
         end
 
@@ -59,6 +63,8 @@ module MemAccess (
                     
                 end
 
+                // Pack bytes into write frame
+
                 WRITE_1: begin
 
                     if (byte_done) begin
@@ -70,6 +76,8 @@ module MemAccess (
 
                 end
 
+                // Process write message and set BRAM inputs accordingly
+
                 WRITE_2: begin
 
                     addra <= write_frame[ADDR_WIDTH-1:0];
@@ -78,22 +86,30 @@ module MemAccess (
 
                 end
 
+                // Pack bytes into read frame
+
                 READ_1: begin
 
                     if (byte_done) begin
 
                         msgidx <= msgidx+1;
-                        read_frame <= {RX_data, read_frame[15:8]};
+                        read_frame <= {RX_data, read_frame[31:8]};
 
                     end
 
                 end
 
-                READ_2: begin 
+                // Process read message, set BRAM address with ADDR_LOW, and store ADDR_HIGH for later
 
-                    addrb <= read_frame[ADDR_WIDTH-1:0]; 
+                READ_2: begin
+
+                    ADDR_HIGH <= read_frame[ADDR_WIDTH-1:0];
+                    addrb <= read_frame[ADDR_WIDTH-1+16:16]; // ADDR_LOW
+                    
 
                 end
+
+                // Begin BRAM data transmission over TX
 
                 READ_4: begin
 
@@ -103,13 +119,16 @@ module MemAccess (
 
                 end
                     
+                // Continue BRAM data transmission over TX until data from ADDR_HIGH is transmitted
 
                 READ_5: begin
 
                     if (byte_done) begin
 
-                        word_idx <= word_idx+1; // used to loop between 0-3 and select parts of data word to transmit
-                        TX_data <= dob[7+8*word_idx -: 8];
+                        word_idx <= (word_idx+1)%4; // used to loop between 0-3 and select parts of data word to transmit
+                        if (addrb != ADDR_HIGH+4) TX_data <= dob[7+8*word_idx -: 8];
+                        else TX_enable <= 0;
+                        if (word_idx == 3) addrb <= addrb+4;
 
                     end
 
@@ -122,7 +141,7 @@ module MemAccess (
 
     end
 
-    // STATE TRANSITION LOGIC
+    // State Transition Logic
 
     always @ (*) begin
 
@@ -151,7 +170,7 @@ module MemAccess (
 
             READ_1: begin
 
-                if (msgidx == 1 && byte_done) next_state = READ_2;
+                if (msgidx == 3 && byte_done) next_state = READ_2;
                 else next_state = READ_1;
 
             end
@@ -162,7 +181,7 @@ module MemAccess (
 
             end
 
-            READ_3: begin
+            READ_3: begin // This is a buffer state to allow BRAM 1 clock cycle to output data at the address previously set in the READ_2 state
 
                 next_state = READ_4;
 
@@ -176,7 +195,8 @@ module MemAccess (
 
             READ_5: begin
                 
-                if (word_idx == 3 && byte_done) next_state = IDLE;
+                // If address is beyond ADDR_HIGH and last data byte is done transmitting
+                if (addrb == ADDR_HIGH+4 && byte_done) next_state = IDLE;
                 else next_state = READ_5;
 
             end

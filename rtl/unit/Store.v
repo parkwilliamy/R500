@@ -11,6 +11,8 @@ module Store (
     wire [1:0] byte_offset;
     assign byte_offset = addrb % 4;
 
+    // RESERVED ADDRESSES TO WRITE CPU PERFORMANCE METRICS TO
+    // Assumes the test programs don't write to these addresses
     localparam CLK_CYCLE_ADDR = 32'h5000, INVALID_CLK_CYCLE_ADDR = 32'h5004, RETIRED_INSTRUCTIONS_ADDR = 32'h5008, CORRECT_PREDICTIONS_ADDR = 32'h500C, TOTAL_PREDICTIONS_ADDR = 32'h5010;
 
     reg [31:0] final_data;
@@ -20,6 +22,7 @@ module Store (
         web = 0;
         dib = 0;
 
+        // If address is one of the reserved addresses, BRAM is written with the respective performance metric instead of rs2 data
         case (addrb) 
 
             CLK_CYCLE_ADDR: final_data = clk_cycles;

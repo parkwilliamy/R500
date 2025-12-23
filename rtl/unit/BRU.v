@@ -15,6 +15,7 @@ module BRU (
     always @(*) begin
 
         branch_taken_inter = 0;
+        prediction_status = 0;
 
         if (EX_Branch) begin
                 
@@ -28,11 +29,6 @@ module BRU (
                     3'b111: branch_taken_inter = ~carry; // BGEU
                     
                 endcase
-
-
-        end
-
-        if (EX_Branch) begin
         
             if (((EX_branch_prediction == 2'b00 || EX_branch_prediction == 2'b01) && branch_taken_inter)) begin
 
@@ -57,13 +53,9 @@ module BRU (
                 prediction_status = 3;
 
             end
-            
-            else prediction_status = 0;
-            
+           
         end
-        
-        else prediction_status = 0;
-
+      
     end
     
 endmodule

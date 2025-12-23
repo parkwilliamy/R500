@@ -3,11 +3,11 @@
 module UART (
     input clk, rst_n, RX, TX_enable,
     input [7:0] TX_data,
-    output reg TX, byte_done,
+    output reg TX, byte_done, // byte_done indicates when a byte is done being received on RX or transmitted on TX
     output reg [7:0] RX_data
 );
 
-    // This module assumes a baud rate of 1Mb/s
+    // This module assumes a baud rate of 1Mb/s with clock of 57MHz
     localparam MAX_COUNT = 56,
                IDLE = 3'b000, 
                START_RX = 3'b001, 
@@ -18,12 +18,12 @@ module UART (
                STOP_TX = 3'b110;
 
     reg [2:0] current_state, next_state;
-    reg [5:0] baud_count;
-    reg [2:0] data_idx;
+    reg [5:0] baud_count; // Counter for sampling data on RX line or triggering baud tick on TX line
+    reg [2:0] data_idx; // Index to track data bits during a transaction
     reg baud_tick;
-    reg [7:0] data_buffer;
+    reg [7:0] data_buffer; // Shift register to hold sampled data from RX line
 
-    reg [1:0] RX_buffer;
+    reg [1:0] RX_buffer; // Holds sampled values of RX line to detect falling edge
     wire RX_negedge;
     assign RX_negedge = RX_buffer[1] && !RX_buffer[0];
 
@@ -56,9 +56,9 @@ module UART (
                     if (RX_negedge) baud_count <= 28; // START_RX baud counter from halfway for half baud tick
                     else if (TX_enable && baud_tick) begin
 
-                        baud_count <= 0;
+                        baud_count <= 0; // Reset baud count
                         baud_tick <= 0;
-                        TX <= 0; // set start bit
+                        TX <= 0; // Set start bit
                         data_idx <= 0;
 
                     end
@@ -73,7 +73,7 @@ module UART (
 
                 START_RX: begin
 
-                    if (baud_tick) data_idx <= 0; // reset DATA_RX counter to 0 before transition to DATA_RX
+                    if (baud_tick) data_idx <= 0; // Reset index to 0 before transition to DATA_RX
 
                 end
 

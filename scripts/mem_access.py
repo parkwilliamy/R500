@@ -1,10 +1,8 @@
 import serial
 
-# MAKE SURE INPUT HANDLING WORKS AT THE END (ie, proper data/file format)
-
 # Configure the serial port
 ser = serial.Serial(
-    port='COM8',                  # Use COM4
+    port='COM8',                  # Use COM8
     baudrate=1000000,              # Baud rate: 1000000
     bytesize=serial.EIGHTBITS,    # 8 data bits
     parity=serial.PARITY_NONE,    # No parity bit
@@ -15,7 +13,7 @@ ser = serial.Serial(
 def main():
 
     if ser.isOpen():
-        print("Serial port COM4 opened successfully.")
+        print("Serial port COM8 opened successfully.")
     else:
         ser.open()
     

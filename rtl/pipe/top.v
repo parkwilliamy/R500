@@ -3,11 +3,24 @@
 module top (
     input clk, rst_n_mem, rst_n_cpu, rst_clk, mem_control, RX,
     output TX,
-    output [15:0] led
+    output [12:0] led // NOTE: LEDs are used to avoid Vivado optimizing away all the modules
 );
 
+    // Clock Wizard is used to convert 100MHz Basys-3 clock into 57MHz for CPU
+  
+    wire clk_out1;
+    
+    clk_wiz_0 INST1 (
+      .clk_out1(clk_out1), // 57 MHz clock             
+      .reset(rst_clk), 
+      .locked(),
+      .clk_in1(clk) // 100 MHz clock
+    );
+    
+    // BRAM (word addressable)
+
     wire [3:0] wea, web;
-    wire [15:0] addra, addrb; // 32 KB for IMEM and DMEM total
+    wire [15:0] addra, addrb; // 20 KB for IMEM, 12 KB for DMEM
     wire [15:0] addra_cpu, addrb_cpu;
     wire [15:0] addra_mem, addrb_mem;
     wire [31:0] doa, dob; // Port A is IMEM, Port B is DMEM
@@ -15,25 +28,12 @@ module top (
     
     wire [15:0] row_a, row_b;
     
-    // mem_control determines what device has control of BRAM addressing, 0 is CPU, 1 is MemAccess for reading/writing RAM
+    // mem_control determines what device has control of BRAM reads/writes, 0 is CPU, 1 is MemAccess
+    // Addresses are right shifted 2 bits to convert a byte address into a word address
     
     assign row_a = mem_control ? addra_mem >> 2 : addra_cpu >> 2;
     assign row_b = mem_control ? addrb_mem >> 2 : addrb_cpu >> 2;
-  
-    wire clk_out1;
-    
-    clk_wiz_0 INST1 (
-        
-      // Clock out ports  
-      .clk_out1(clk_out1),
-      // Status and control signals               
-      .reset(rst_clk), 
-      .locked(),
-     // Clock in ports
-      .clk_in1(clk)
-    );
-    
-    // byte addressable memory that uses the nearest word as an index
+
     blk_mem_gen_0 INST2 ( 
         .clka(clk_out1),
         .clkb(clk_out1),
@@ -46,7 +46,6 @@ module top (
         .douta(doa),
         .doutb(dob)
     );
-    
 
     CPU INST3 (
         .clk(clk_out1),
@@ -61,12 +60,11 @@ module top (
 
     wire TX_enable, byte_done;
     wire [7:0] TX_data, RX_data;
-    
-    assign led[15:2] = addra_cpu[15:2];
-    assign led[1] = byte_done;
-    assign led[0] = TX_enable;
 
-    (* DONT_TOUCH = "yes" *) UART INST4 (
+    // UART packs bits in bytes, while MemAccess packs bytes into frames
+    // Both modules work together to read and write from BRAM while the CPU is not executing
+
+    UART INST4 (
         .clk(clk_out1),
         .rst_n(rst_n_mem),
         .RX(RX),
@@ -77,7 +75,7 @@ module top (
         .RX_data(RX_data)
     );
     
-    (* DONT_TOUCH = "yes" *) MemAccess INST5 (
+    MemAccess INST5 (
         .clk(clk_out1),
         .rst_n(rst_n_mem),
         .byte_done(byte_done),
@@ -91,5 +89,8 @@ module top (
         .TX_data(TX_data)
     );
 
-
+    assign led[12:9] = web;
+    assign led[8:1] = TX_data;
+    assign led[0] = byte_done;
+    
 endmodule
