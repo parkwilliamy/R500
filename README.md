@@ -1,10 +1,14 @@
 # R500
 ## Features
 - R500 is a 32-bit processor based on the RISC-V architecture
-- R500 has a CPI of 1.23, branch predictor accuracy of 96.5%, and a throughput of 46.3 million instructions per second
+- R500 has an average CPI of 1.23*, branch predictor accuracy of 96.5%**, and a throughput of 46.3 million instructions per second*
 - Implemented on the Xilinx Artix-7 FPGA with 20KB of instruction memory and 12KB of data memory
 - Utilizes a 5-stage pipeline with global branch prediction
 - Designed a 2-way set associative branch target buffer to eliminate penalties for taken branch instructions
+
+**Average CPI and throughput were calculated on the average results of loop1.c, loop2.c, loop3.c, loop4.c, loop5.c, fib.c, and mem2.c*
+
+***Average branch predictor accuracy was calculated on the average result of loop1.c, loop2.c, loop3.c, loop4.c, loop5.c*
 
 ## Repository Structure
 - main branch only contains the files for the synthesized R500
