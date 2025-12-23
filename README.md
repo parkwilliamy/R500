@@ -60,6 +60,8 @@ NOTE: Write enable bits select which bytes in a word to write (i.e., we = 0010 w
 
    
 ## Verification
+NOTE: Testbench files are in the pipelined branch in tb/
+
 - Wrote testbenches in SystemVerilog that implemented constraint random verification along with directed tests
 - Debugged waveforms with Vivado's xsim tool
 - Wrote a shell script to simplify compilation, elaboration, and simulation into one command
